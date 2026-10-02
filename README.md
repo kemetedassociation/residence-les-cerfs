@@ -7,7 +7,10 @@ npm install
 npm run dev       # http://localhost:5180
 npm run build     # → dist/ (site statique, déployable partout)
 npm run images    # régénère les images optimisées après ajout/remplacement d'une photo
+npm run deploy    # publie sur https://kemetedassociation.github.io/residence-les-cerfs/
 ```
+
+Les photos sources pleine résolution (`src-assets/`) ne sont pas dans le dépôt GitHub : elles restent sur cet ordinateur.
 
 ## Modifier le contenu sans toucher au moteur
 
