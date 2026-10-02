@@ -15,7 +15,7 @@ export const SITE = {
   intro: "Un appartement d'exception à Châtel, entre confort contemporain et authenticité alpine.",
 
   contact: {
-    email: 'contact@residence-les-cerfs.fr', // ← à remplacer
+    email: 'cerf74390@gmail.com',
     phone: '', // ex. '+33 6 00 00 00 00'
     address: 'Châtel, 74390 Haute-Savoie, France',
   },
