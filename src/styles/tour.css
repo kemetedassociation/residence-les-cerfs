@@ -1,6 +1,12 @@
 /* ── stage ────────────────────────────────────────── */
-.tour {
+/* the track gives each scene one segment of scroll; the stage stays pinned */
+.tour-track {
   position: relative;
+  height: calc(100svh + (var(--n) - 1) * 85svh);
+}
+.tour {
+  position: sticky;
+  top: 0;
   height: 100vh;
   height: 100svh;
   min-height: 560px;
@@ -14,11 +20,6 @@
   position: absolute;
   inset: 0;
   will-change: transform;
-}
-@media (hover: hover) and (pointer: fine) {
-  .tour__world {
-    transform: scale(1.04);
-  }
 }
 .tour__layer,
 .tour__cam {
@@ -115,6 +116,65 @@
   font-size: 15px;
   color: rgba(243, 240, 233, 0.88);
   text-shadow: 0 1px 18px rgba(0, 0, 0, 0.45);
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px 26px;
+}
+.hero__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(243, 240, 233, 0.7);
+}
+.hero__hint-line {
+  position: relative;
+  width: 1px;
+  height: 34px;
+  overflow: hidden;
+  background: rgba(243, 240, 233, 0.25);
+}
+.hero__hint-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--beige);
+  animation: hint-drop 2.4s var(--ease) 3;
+}
+@keyframes hint-drop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* scroll progress through the tour */
+.tour__progress {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  z-index: 5;
+  width: 1px;
+  height: 120px;
+  margin-top: 70px;
+  background: rgba(243, 240, 233, 0.22);
+  pointer-events: none;
+}
+.tour__progress::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--beige);
+  transform-origin: top;
+  transform: scaleY(var(--progress, 0));
 }
 
 /* ── arrows ───────────────────────────────────────── */
@@ -453,6 +513,15 @@
   }
   .tour__cue {
     display: none;
+  }
+  .tour__progress {
+    right: 10px;
+    top: 30%;
+    height: 90px;
+    margin-top: 0;
+  }
+  .hero__actions {
+    gap: 14px 20px;
   }
 }
 @media (hover: none) {

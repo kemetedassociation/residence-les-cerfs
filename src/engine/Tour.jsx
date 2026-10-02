@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { SCENES, ROOMS, sceneIndex, roomIndex } from '../data/scenes.js';
 import { SITE } from '../data/site.js';
 import { coverRect, pickSrc, preload, getImage } from '../lib/images.js';
-import { finePointer, reducedMotion, scrollToEl } from '../lib/scroll.js';
+import { finePointer, onScroll, reducedMotion, scrollToEl } from '../lib/scroll.js';
 import { cameraTransition } from './transitions.js';
 import Hotspot from '../components/Hotspot.jsx';
 import HotspotPanel from '../components/HotspotPanel.jsx';
@@ -47,6 +47,7 @@ function SceneLayer({ scene, size, layerRef, camRef, hotspots }) {
 }
 
 export default function Tour({ ready }) {
+  const trackRef = useRef(null);
   const stageRef = useRef(null);
   const worldRef = useRef(null);
   const uiRef = useRef(null);
@@ -66,7 +67,14 @@ export default function Tour({ ready }) {
   const busy = useRef(false);
   const pending = useRef(null);
   const live = useRef({});
-  live.current = { current, front, size };
+  live.current = { size };
+  // authoritative navigation state (state above only drives rendering)
+  const curRef = useRef(SCENES[0].id);
+  const frontRef = useRef(0);
+  const desired = useRef(SCENES[0].id); // scene the scroll position asks for
+  const originFor = useRef(null); // { id, origin } — camera target for a hotspot passage
+  const forced = useRef(null); // scene being reached by a programmatic scroll
+  const readyRef = useRef(false);
 
   const ui = byId[uiId];
   const scene = byId[current];
@@ -86,9 +94,13 @@ export default function Tour({ ready }) {
   // ── intro, once the loader is gone ───────────────────────
   useEffect(() => {
     if (!ready) return;
+    readyRef.current = true;
     const rm = reducedMotion();
     gsap.fromTo(camRefs[0].current, { scale: rm ? 1 : 1.14 }, { scale: 1, duration: rm ? 0 : 2.8, ease: 'power2.out' });
-    revealUI(rm ? 0 : 0.5).then(() => setSettled(true));
+    revealUI(rm ? 0 : 0.5).then(() => {
+      setSettled(true);
+      pump();
+    });
   }, [ready]);
 
   const revealUI = (delay = 0.15) =>
@@ -104,8 +116,10 @@ export default function Tour({ ready }) {
     });
 
   // ── navigation ───────────────────────────────────────────
-  const goTo = useCallback(async (id, opts = {}) => {
-    const { current, front, size } = live.current;
+  const goTo = async (id, opts = {}) => {
+    const { size } = live.current;
+    const current = curRef.current;
+    const front = frontRef.current;
     if (busy.current || id === current || !byId[id]) return;
     busy.current = true;
     setOpenHs(null);
@@ -119,6 +133,87 @@ export default function Tour({ ready }) {
       n[1 - front] = id;
       return n;
     });
+  };
+
+  // start the transition towards the desired scene, if we're free to
+  function pump() {
+    if (busy.current || !readyRef.current) return;
+    const id = desired.current;
+    if (id === curRef.current) return;
+    const o = originFor.current?.id === id ? originFor.current.origin : undefined;
+    originFor.current = null;
+    goTo(id, { origin: o });
+  }
+
+  function request(id, opts = {}) {
+    desired.current = id;
+    if (opts.origin) originFor.current = { id, origin: opts.origin };
+    pump();
+  }
+
+  // ── the tour is driven by the scroll position ────────────
+  // the track is (N − 1) segments taller than the sticky stage; scene i sits at segment i
+  const segment = () => (trackRef.current.offsetHeight - stageRef.current.offsetHeight) / (SCENES.length - 1);
+  const anchorY = (i) => trackRef.current.getBoundingClientRect().top + window.scrollY + i * segment();
+
+  /** Every button / swipe / key goes through here: scroll to the scene, the scene follows. */
+  const navigate = useCallback((id, opts = {}) => {
+    const i = sceneIndex(id);
+    if (i < 0) return;
+    forced.current = id;
+    request(id, opts);
+    scrollToEl(anchorY(i), { duration: 1.1 }).then(() => {
+      if (forced.current === id) forced.current = null;
+    });
+  }, []);
+
+  useEffect(() => {
+    const N = SCENES.length;
+    const rm = reducedMotion();
+    gsap.set(worldRef.current, { scale: 1.04 });
+    const qs = rm ? null : gsap.quickTo(worldRef.current, 'scale', { duration: 0.6, ease: 'power2.out' });
+    let idle = 0;
+    let touching = false;
+    let lastRel = 0;
+
+    const snap = (i) => {
+      if (touching || forced.current) return;
+      const y = anchorY(i);
+      if (Math.abs(window.scrollY - y) > 3) scrollToEl(y, { duration: 0.7 });
+    };
+    const update = () => {
+      const rel = -trackRef.current.getBoundingClientRect().top / segment();
+      // switch after 30 % of a segment in the direction of the gesture, so a short flick is enough
+      const goingUp = rel < lastRel - 0.001;
+      lastRel = rel;
+      const i = Math.max(0, Math.min(N - 1, goingUp ? Math.ceil(rel - 0.7) : Math.floor(rel + 0.7)));
+      if (!forced.current) request(SCENES[i].id);
+      // the camera leans forward while you scroll towards the next scene
+      qs?.(1.04 + Math.max(-0.04, Math.min(0.04, (rel - i) * 0.12)));
+      trackRef.current.style.setProperty('--progress', Math.max(0, Math.min(1, rel / (N - 1))).toFixed(4));
+      clearTimeout(idle);
+      if (!touching && !forced.current && rel > -0.5 && rel < N - 1.02) idle = setTimeout(() => snap(i), 200);
+    };
+    const down = () => {
+      touching = true;
+      clearTimeout(idle);
+    };
+    const up = () => {
+      touching = false;
+      update();
+    };
+    const off = onScroll(update);
+    window.addEventListener('touchstart', down, { passive: true });
+    window.addEventListener('touchend', up, { passive: true });
+    window.addEventListener('touchcancel', up, { passive: true });
+    update();
+    return () => {
+      off?.();
+      clearTimeout(idle);
+      window.removeEventListener('touchstart', down);
+      window.removeEventListener('touchend', up);
+      window.removeEventListener('touchcancel', up);
+    };
   }, []);
 
   // runs right after the incoming layer has been rendered
@@ -126,7 +221,8 @@ export default function Tour({ ready }) {
     const p = pending.current;
     if (!p) return;
     pending.current = null;
-    const { front, size } = live.current;
+    const { size } = live.current;
+    const front = frontRef.current;
     const back = 1 - front;
     const from = byId[p.from];
     const to = byId[p.to];
@@ -144,10 +240,13 @@ export default function Tour({ ready }) {
       to: { layer: layerRefs[back].current, cam: camRefs[back].current },
       onMidway: () => setUiId(p.to),
       onComplete: () => {
+        frontRef.current = back;
+        curRef.current = p.to;
         setFront(back);
         setCurrent(p.to);
         busy.current = false;
         setSettled(true);
+        pump(); // the scroll may already ask for another scene
       },
     });
   }, [layers]);
@@ -159,11 +258,11 @@ export default function Tour({ ready }) {
 
   const step = useCallback(
     (d) => {
-      const i = sceneIndex(live.current.current) + d;
+      const i = sceneIndex(desired.current) + d;
       if (i >= SCENES.length) return scrollToEl('#appartement');
-      if (i >= 0) goTo(SCENES[i].id);
+      if (i >= 0) navigate(SCENES[i].id);
     },
-    [goTo],
+    [navigate],
   );
 
   // ── preload the neighbours of the current scene ──────────
@@ -239,13 +338,10 @@ export default function Tour({ ready }) {
 
   // ── requests from the rest of the page ───────────────────
   useEffect(() => {
-    const onGoto = async (e) => {
-      await scrollToEl(0);
-      goTo(e.detail);
-    };
+    const onGoto = (e) => navigate(e.detail);
     window.addEventListener('tour:goto', onGoto);
     return () => window.removeEventListener('tour:goto', onGoto);
-  }, [goTo]);
+  }, [navigate]);
 
   // ── hotspots of the scene in front ───────────────────────
   const renderHotspots = (s) =>
@@ -268,7 +364,7 @@ export default function Tour({ ready }) {
           index={i}
           flip={p.x > size.w * 0.62}
           open={openHs === h.id}
-          onClick={() => (h.target ? goTo(h.target, { origin: h }) : setOpenHs((o) => (o === h.id ? null : h.id)))}
+          onClick={() => (h.target ? navigate(h.target, { origin: h }) : setOpenHs((o) => (o === h.id ? null : h.id)))}
         />
       );
     });
@@ -276,7 +372,7 @@ export default function Tour({ ready }) {
   const onCta = () => {
     const c = ui.cta;
     if (c.hotspot) setOpenHs(c.hotspot);
-    else if (c.target) goTo(c.target);
+    else if (c.target) navigate(c.target);
     else if (c.href) scrollToEl(c.href);
   };
 
@@ -287,123 +383,130 @@ export default function Tour({ ready }) {
   const idx = sceneIndex(current);
 
   return (
-    <section
-      id="top"
-      ref={stageRef}
-      className={`tour${ui.hero ? ' is-hero' : ''}${settled ? ' is-settled' : ''}`}
-      aria-roledescription="visite"
-      aria-label={`Visite de la ${SITE.name}`}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerCancel={() => (swipe.current = null)}
-      data-cursor="view"
-    >
-      <div className="tour__world" ref={worldRef}>
-        {[0, 1].map((i) => (
-          <SceneLayer
-            key={i}
-            scene={byId[layers[i]]}
-            size={size}
-            layerRef={layerRefs[i]}
-            camRef={camRefs[i]}
-            hotspots={
-              i === front && settled && !ui.hero ? <div className="hotspots">{renderHotspots(byId[layers[i]])}</div> : null
-            }
-          />
-        ))}
-      </div>
-      <div className="tour__shade" aria-hidden="true" />
+    <div id="top" className="tour-track" ref={trackRef} style={{ '--n': SCENES.length }}>
+      <section
+        ref={stageRef}
+        className={`tour${ui.hero ? ' is-hero' : ''}${settled ? ' is-settled' : ''}`}
+        aria-roledescription="visite"
+        aria-label={`Visite de la ${SITE.name}`}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        onPointerCancel={() => (swipe.current = null)}
+        data-cursor="view"
+      >
+        <div className="tour__world" ref={worldRef}>
+          {[0, 1].map((i) => (
+            <SceneLayer
+              key={i}
+              scene={byId[layers[i]]}
+              size={size}
+              layerRef={layerRefs[i]}
+              camRef={camRefs[i]}
+              hotspots={
+                i === front && settled && !ui.hero ? <div className="hotspots">{renderHotspots(byId[layers[i]])}</div> : null
+              }
+            />
+          ))}
+        </div>
+        <div className="tour__shade" aria-hidden="true" />
 
-      <div className={`tour__ui${ui.panel === 'right' ? ' tour__ui--right' : ''}`} ref={uiRef}>
-        {ui.hero ? (
-          <div className="hero" ref={panelRef} key="hero">
-            <p className="kicker" data-reveal>
-              {SITE.name} · {SITE.place}
-            </p>
-            <h1 className="hero__title">
-              {SITE.tagline.map((l) => (
-                <span className="hero__line" data-reveal key={l}>
-                  {l}
-                </span>
-              ))}
-            </h1>
-            <p className="hero__intro" data-reveal>
-              {SITE.intro}
-            </p>
-            <div data-reveal>
-              <button className="btn" onClick={() => goTo(SCENES[1].id)} data-cursor="explore">
-                Entrer dans la résidence <Icon name="chevron" size={16} />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="scene-panel" ref={panelRef} key={ui.id}>
-            <p className="kicker" data-reveal>
-              {pad(ri + 1)} / {pad(ROOMS.length)}
-              {roomScenes.length > 1 && (
-                <span className="scene-panel__sub">
-                  {' '}— {pad(roomScenes.indexOf(ui) + 1)} / {pad(roomScenes.length)}
-                </span>
-              )}
-            </p>
-            <h2 className="scene-panel__title" data-reveal>
-              {ui.title}
-            </h2>
-            <p className="scene-panel__text" data-reveal>
-              {ui.text}
-            </p>
-            {ui.cta && (
-              <div data-reveal>
-                <button className="btn" onClick={onCta} data-cursor="explore">
-                  {ui.cta.label} <Icon name="chevron" size={16} />
+        <div className={`tour__ui${ui.panel === 'right' ? ' tour__ui--right' : ''}`} ref={uiRef}>
+          {ui.hero ? (
+            <div className="hero" ref={panelRef} key="hero">
+              <p className="kicker" data-reveal>
+                {SITE.name} · {SITE.place}
+              </p>
+              <h1 className="hero__title">
+                {SITE.tagline.map((l) => (
+                  <span className="hero__line" data-reveal key={l}>
+                    {l}
+                  </span>
+                ))}
+              </h1>
+              <p className="hero__intro" data-reveal>
+                {SITE.intro}
+              </p>
+              <div data-reveal className="hero__actions">
+                <button className="btn" onClick={() => navigate(SCENES[1].id)} data-cursor="explore">
+                  Entrer dans la résidence <Icon name="chevron" size={16} />
                 </button>
+                <span className="hero__hint" aria-hidden="true">
+                  <span className="hero__hint-line" />
+                  ou faites défiler
+                </span>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="scene-panel" ref={panelRef} key={ui.id}>
+              <p className="kicker" data-reveal>
+                {pad(ri + 1)} / {pad(ROOMS.length)}
+                {roomScenes.length > 1 && (
+                  <span className="scene-panel__sub">
+                    {' '}— {pad(roomScenes.indexOf(ui) + 1)} / {pad(roomScenes.length)}
+                  </span>
+                )}
+              </p>
+              <h2 className="scene-panel__title" data-reveal>
+                {ui.title}
+              </h2>
+              <p className="scene-panel__text" data-reveal>
+                {ui.text}
+              </p>
+              {ui.cta && (
+                <div data-reveal>
+                  <button className="btn" onClick={onCta} data-cursor="explore">
+                    {ui.cta.label} <Icon name="chevron" size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {!ui.hero && (
+          <>
+            <button className="tour__arrow tour__arrow--prev" onClick={() => step(-1)} aria-label="Scène précédente" data-cursor="explore">
+              <Icon name="arrowLeft" size={18} />
+            </button>
+            <button className="tour__arrow tour__arrow--next" onClick={() => step(1)} aria-label="Scène suivante" data-cursor="explore">
+              <Icon name="arrow" size={18} />
+            </button>
+          </>
         )}
-      </div>
 
-      {!ui.hero && (
-        <>
-          <button className="tour__arrow tour__arrow--prev" onClick={() => step(-1)} aria-label="Scène précédente" data-cursor="explore">
-            <Icon name="arrowLeft" size={18} />
-          </button>
-          <button className="tour__arrow tour__arrow--next" onClick={() => step(1)} aria-label="Scène suivante" data-cursor="explore">
-            <Icon name="arrow" size={18} />
-          </button>
-        </>
-      )}
-
-      <SceneNavigation
-        active={ui.room}
-        onSelect={(room) => {
-          if (room.href) return scrollToEl(room.href);
-          const target = SCENES.find((s) => s.room === room.id);
-          goTo(target.id);
-        }}
-      />
-
-      <a href="#appartement" className="tour__cue" data-cursor="explore">
-        <span className="tour__cue-ring">
-          <Icon name="down" size={14} />
-        </span>
-        Découvrir
-      </a>
-
-      {hs && !hs.target && (
-        <HotspotPanel
-          hotspot={hs}
-          x={hsPos.x}
-          y={hsPos.y}
-          flip={hsPos.x > size.w * 0.55}
-          mobile={size.w < 720}
-          onClose={() => setOpenHs(null)}
+        <SceneNavigation
+          active={ui.room}
+          onSelect={(room) => {
+            if (room.href) return scrollToEl(room.href);
+            const target = SCENES.find((s) => s.room === room.id);
+            navigate(target.id);
+          }}
         />
-      )}
 
-      <p className="sr-only" aria-live="polite">
-        {ui.hero ? 'Extérieur' : ui.title} — scène {idx + 1} sur {SCENES.length}
-      </p>
-    </section>
+        <a href="#appartement" className="tour__cue" data-cursor="explore">
+          <span className="tour__cue-ring">
+            <Icon name="down" size={14} />
+          </span>
+          Découvrir
+        </a>
+
+        {hs && !hs.target && (
+          <HotspotPanel
+            hotspot={hs}
+            x={hsPos.x}
+            y={hsPos.y}
+            flip={hsPos.x > size.w * 0.55}
+            mobile={size.w < 720}
+            onClose={() => setOpenHs(null)}
+          />
+        )}
+
+        <span className="tour__progress" aria-hidden="true" />
+
+        <p className="sr-only" aria-live="polite">
+          {ui.hero ? 'Extérieur' : ui.title} — scène {idx + 1} sur {SCENES.length}
+        </p>
+      </section>
+    </div>
   );
 }

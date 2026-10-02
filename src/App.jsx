@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Loader from './components/Loader.jsx';
 import Header from './components/Header.jsx';
 import CustomCursor from './components/CustomCursor.jsx';
@@ -9,12 +9,15 @@ import Chatel from './sections/Chatel.jsx';
 import Booking from './sections/Booking.jsx';
 import Footer from './sections/Footer.jsx';
 import { useParallax, useReveal } from './animations/reveal.js';
+import { lockScroll } from './lib/scroll.js';
 
 export default function App() {
   const [ready, setReady] = useState(false);
   const assets = useMemo(() => firstAssets(), []);
   useReveal();
   useParallax();
+  // no scrolling (= no navigating) until the loader is gone
+  useEffect(() => lockScroll(!ready), [ready]);
 
   return (
     <>
