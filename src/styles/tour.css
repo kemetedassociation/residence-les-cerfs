@@ -1,0 +1,462 @@
+/* ── stage ────────────────────────────────────────── */
+.tour {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  background: var(--black);
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.tour__world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) {
+  .tour__world {
+    transform: scale(1.04);
+  }
+}
+.tour__layer,
+.tour__cam {
+  position: absolute;
+  inset: 0;
+}
+.tour__cam {
+  will-change: transform, filter;
+}
+.tour__img {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+.tour__img.tone-night {
+  filter: brightness(0.66) contrast(1.06) saturate(0.82) hue-rotate(-6deg);
+}
+
+.tour__shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 8, 8, 0.6) 0%, rgba(8, 8, 8, 0) 20%, rgba(8, 8, 8, 0) 66%, rgba(8, 8, 8, 0.72) 100%),
+    linear-gradient(90deg, rgba(8, 8, 8, 0.62) 0%, rgba(8, 8, 8, 0.18) 44%, rgba(8, 8, 8, 0) 66%);
+}
+.tour:has(.tour__ui--right) .tour__shade {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 8, 0.6) 0%, rgba(8, 8, 8, 0) 20%, rgba(8, 8, 8, 0) 66%, rgba(8, 8, 8, 0.72) 100%),
+    linear-gradient(270deg, rgba(8, 8, 8, 0.62) 0%, rgba(8, 8, 8, 0.18) 44%, rgba(8, 8, 8, 0) 66%);
+}
+.tour.is-hero .tour__shade {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 8, 0.55) 0%, rgba(8, 8, 8, 0) 26%, rgba(8, 8, 8, 0) 60%, rgba(8, 8, 8, 0.8) 100%),
+    linear-gradient(90deg, rgba(8, 8, 8, 0.78) 0%, rgba(8, 8, 8, 0.3) 46%, rgba(8, 8, 8, 0) 72%);
+}
+
+/* ── copy ─────────────────────────────────────────── */
+.tour__ui {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  padding: 90px var(--gutter) 120px;
+  pointer-events: none;
+}
+.tour__ui > * {
+  pointer-events: auto;
+}
+.tour__ui--right {
+  justify-content: flex-end;
+}
+.tour__ui--right .scene-panel {
+  margin: 0 clamp(0px, 3vw, 48px) 0 0;
+}
+.hero {
+  max-width: 680px;
+}
+.hero__title {
+  margin: 18px 0 26px;
+  font-size: var(--fs-hero);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: 0.012em;
+  text-transform: uppercase;
+}
+.hero__line {
+  display: block;
+}
+.hero__intro {
+  max-width: 400px;
+  margin-bottom: 36px;
+  font-size: 15px;
+  color: rgba(243, 240, 233, 0.86);
+}
+.scene-panel {
+  max-width: 430px;
+  margin-left: clamp(0px, 3vw, 48px);
+}
+.scene-panel__sub {
+  color: var(--gold);
+}
+.scene-panel__title {
+  margin: 12px 0 18px;
+  font-size: var(--fs-title);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.scene-panel__text {
+  margin-bottom: 30px;
+  font-size: 15px;
+  color: rgba(243, 240, 233, 0.88);
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* ── arrows ───────────────────────────────────────── */
+.tour__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-top: -26px;
+  border: 1px solid rgba(243, 240, 233, 0.55);
+  border-radius: 50%;
+  background: rgba(8, 8, 8, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.5s var(--ease-out), color 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+.tour__arrow:hover {
+  background: var(--white);
+  color: var(--black);
+}
+.tour__arrow--prev {
+  left: 22px;
+}
+.tour__arrow--next {
+  right: 22px;
+}
+.tour__arrow--prev:hover {
+  transform: translateX(-3px);
+}
+.tour__arrow--next:hover {
+  transform: translateX(3px);
+}
+
+/* ── room indicator ───────────────────────────────── */
+.scene-nav {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  z-index: 5;
+  transform: translateX(-50%);
+}
+.scene-nav ol {
+  display: flex;
+  align-items: flex-start;
+}
+.scene-nav li {
+  display: flex;
+  align-items: center;
+}
+.scene-nav li + li::before {
+  content: '';
+  width: clamp(18px, 3vw, 54px);
+  height: 1px;
+  margin-top: -12px;
+  background: linear-gradient(90deg, transparent, rgba(243, 240, 233, 0.35), transparent);
+}
+.scene-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px 6px;
+  color: rgba(243, 240, 233, 0.5);
+  transition: color 0.5s var(--ease-out);
+}
+.scene-nav__item:hover,
+.scene-nav__item.is-active {
+  color: var(--white);
+}
+.scene-nav__num {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+.scene-nav__label {
+  position: relative;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-bottom: 6px;
+}
+.scene-nav__label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--beige);
+  transform: scaleX(0);
+  transition: transform 0.8s var(--ease-out);
+}
+.is-active .scene-nav__label::after {
+  transform: scaleX(1);
+}
+
+.tour__cue {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 30px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(243, 240, 233, 0.75);
+}
+.tour__cue-ring {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(243, 240, 233, 0.5);
+  border-radius: 50%;
+  transition: transform 0.5s var(--ease-out);
+}
+.tour__cue::before {
+  content: '';
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(transparent, rgba(243, 240, 233, 0.6));
+}
+.tour__cue:hover .tour__cue-ring {
+  transform: translateY(4px);
+}
+
+/* ── hotspots ─────────────────────────────────────── */
+.hotspots {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+.hotspot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-22px, -22px);
+  animation: hs-in 0.9s var(--ease-out) both;
+  animation-delay: calc(0.25s + var(--i) * 0.12s);
+}
+.hotspot--flip {
+  flex-direction: row-reverse;
+  transform: translate(calc(-100% + 22px), -22px);
+}
+@keyframes hs-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+.hotspot__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+}
+.hotspot__dot::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: rgba(8, 8, 8, 0.22);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: inset 0.5s var(--ease-out), border-color 0.5s;
+}
+.hotspot__dot::after {
+  content: '';
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.55);
+  transition: transform 0.5s var(--ease-out);
+}
+.hotspot:hover .hotspot__dot::before,
+.hotspot:focus-visible .hotspot__dot::before,
+.hotspot.is-open .hotspot__dot::before {
+  inset: 3px;
+}
+.hotspot:hover .hotspot__dot::after,
+.hotspot.is-open .hotspot__dot::after {
+  transform: scale(0.7);
+}
+.hotspot--door .hotspot__dot::after {
+  display: none;
+}
+.hotspot--door .hotspot__dot::before {
+  border-color: var(--beige);
+}
+.hotspot--door .hotspot__dot svg {
+  position: relative;
+  color: var(--white);
+}
+.hotspot__label {
+  padding: 7px 12px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(8, 8, 8, 0.5);
+  border: 1px solid rgba(243, 240, 233, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+  transition: clip-path 0.6s var(--ease-out), opacity 0.4s;
+}
+.hotspot--flip .hotspot__label {
+  clip-path: inset(0 0 0 100%);
+}
+.hotspot:hover .hotspot__label,
+.hotspot:focus-visible .hotspot__label,
+.hotspot--door .hotspot__label {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+}
+
+.hotspot.is-open .hotspot__label {
+  opacity: 0;
+}
+
+/* panel */
+.hs-panel {
+  position: absolute;
+  z-index: 6;
+  width: 300px;
+  padding: 24px 24px 10px;
+  background: rgba(14, 13, 12, 0.8);
+  border: 1px solid var(--line);
+  border-top-color: var(--gold);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.hs-panel--sheet {
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: auto;
+  background: rgba(14, 13, 12, 0.96);
+}
+.hs-panel__title {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.hs-panel__text {
+  margin: 12px 0 6px;
+  color: rgba(243, 240, 233, 0.8);
+}
+
+/* ── tablet / mobile ──────────────────────────────── */
+@media (max-width: 1100px) {
+  .scene-nav__label {
+    font-size: 8px;
+  }
+}
+@media (max-width: 720px) {
+  .tour__ui {
+    align-items: flex-end;
+    padding: 90px 20px 132px;
+  }
+  .tour__shade,
+  .tour.is-hero .tour__shade,
+  .tour:has(.tour__ui--right) .tour__shade {
+    background: linear-gradient(
+      180deg,
+      rgba(8, 8, 8, 0.55) 0%,
+      rgba(8, 8, 8, 0) 18%,
+      rgba(8, 8, 8, 0) 38%,
+      rgba(8, 8, 8, 0.82) 72%,
+      rgba(8, 8, 8, 0.92) 100%
+    );
+  }
+  .hero__title {
+    margin: 12px 0 16px;
+  }
+  .hero__intro,
+  .scene-panel__text {
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+  .scene-panel {
+    margin: 0;
+  }
+  .scene-panel__title {
+    margin: 8px 0 12px;
+  }
+  .tour__arrow {
+    top: auto;
+    bottom: 78px;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+  }
+  .tour__arrow--prev {
+    left: auto;
+    right: 72px;
+  }
+  .tour__arrow--next {
+    right: 20px;
+  }
+  .scene-nav {
+    left: 20px;
+    right: 20px;
+    bottom: 14px;
+    transform: none;
+  }
+  .scene-nav ol {
+    justify-content: space-between;
+  }
+  .scene-nav li + li::before {
+    display: none;
+  }
+  .scene-nav__item {
+    padding: 4px 0;
+  }
+  .scene-nav__label {
+    font-size: 7.5px;
+    letter-spacing: 0.14em;
+  }
+  .tour__cue {
+    display: none;
+  }
+}
+@media (hover: none) {
+  .hotspot:not(.hotspot--door) .hotspot__label {
+    display: none;
+  }
+}
