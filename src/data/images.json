@@ -9,30 +9,6 @@
   ],
   "lqip": "data:image/webp;base64,UklGRqgAAABXRUJQVlA4IJwAAABwBQCdASoYACAAPuVgo02pJaMiMAwBIByJYgCdL3+B7UcALU+wJHqBgt9fRcAPkVFxWcWAAPAj4hpzp7G6afF7RUyk7T5mfbqE8jmtnTteC9P4d4ih2lmJ5asAJqgpl/OvppXE6cece+I1aqcik/3tfPTxtmRLt6bMMtDPYazujHiO44du0Rt/GTZchYvNMM7F930+oINbGWHeQAA="
  },
- "interior/chambre-2": {
-  "id": "interior-chambre-2",
-  "width": 4284,
-  "height": 5712,
-  "widths": [
-   640,
-   1080,
-   1600,
-   2400
-  ],
-  "lqip": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAAAwBQCdASoYACAAPuleok2pJSMiMAwBIB0JYgC+SCILeIzq2BZ3nE0L9EEXKgselUcAAAD8fCKvVD7mOC2PzzNwJVPZMkcruSqtyeOZqW7Ryt9gtlUBNuP0GK/JZ0AST5lMKrRGO+9lEoVLcE4rLw2C6M4omr1w/0y16ECkqBgyvTS8t/9ZeT7ikFxJxKAA"
- },
- "interior/repas": {
-  "id": "interior-repas",
-  "width": 4284,
-  "height": 5712,
-  "widths": [
-   640,
-   1080,
-   1600,
-   2400
-  ],
-  "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAABwBQCdASoYACAAPulep02pJSOiN/VYASAdCWUAzBxHW/wvt8czhHKyqgCdRQpmx7L9drGoAPuaY4aotmp5d+OTjC2WEByOcTntqs9KOamFp537CDruf+9CEbRzTWwoz2IJiYxCO6D0yhckX/tqL1LZ+phk4GKPuRSKL5qwFAThePaVv5L1mW0QAAA="
- },
  "interior/salle-de-bain": {
   "id": "interior-salle-de-bain",
   "width": 1086,

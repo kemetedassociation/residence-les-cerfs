@@ -434,16 +434,14 @@
   gap: 48px;
   padding-bottom: 56px;
 }
-.footer__mark {
-  width: 70px;
-  color: var(--gold);
-  margin-bottom: 18px;
+.footer__logo {
+  display: block;
+  width: 150px;
+  margin-bottom: 16px;
 }
-.footer__name {
-  font-size: 15px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
+.footer__logo img {
+  width: 100%;
+  height: auto;
 }
 .footer__h {
   font-size: var(--fs-label);

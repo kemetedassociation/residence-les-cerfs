@@ -44,7 +44,7 @@ export const APARTMENT = {
 export const ROOM_CARDS = [
   { scene: 'chambre-1', image: 'interior/chambre-1', focus: '50% 55%', index: '03 / 05', title: 'Les chambres', text: 'Trois chambres, chacune avec un lit de 160 cm.' },
   { scene: 'salle-de-bain', image: 'interior/salle-de-bain', focus: '50% 45%', index: '04 / 05', title: 'Salles de bain', text: 'Douche à l’italienne et double vasque, plus une petite salle de bain à l’étage.' },
-  { scene: 'repas', image: 'interior/repas', focus: '50% 55%', index: '02 / 05', title: 'Cuisine & repas', text: 'Cuisine équipée et grande table en bois massif pour partager des moments uniques.' },
+  { scene: 'sejour-2', image: 'interior/sejour-2', focus: '40% 55%', index: '02 / 05', title: 'Le coin du feu', text: 'Salon, salle à manger et cuisine équipée autour du poêle à bois.' },
 ];
 
 export const EXPERIENCE = {
@@ -74,5 +74,5 @@ export const CHATEL = {
 export const BOOKING = {
   kicker: 'Réservation',
   title: ['Votre séjour', 'commence ici'],
-  image: 'interior/repas',
+  image: 'interior/sejour-1',
 };

@@ -11,9 +11,9 @@ const OUT = path.join(ROOT, 'public/img');
 const MANIFEST = path.join(ROOT, 'src/data/images.json');
 const WIDTHS = [640, 1080, 1600, 2400];
 
-// Very light warm grade for the daylight photos so they sit next to the evening ones.
-// Colour only — nothing in the room is altered.
-const WARM = new Set(['interior/repas', 'interior/chambre-2']);
+// Very light warm grade for daylight photos so they sit next to the evening ones.
+// Colour only — nothing in the room is altered. (No daylight photo in use at the moment.)
+const WARM = new Set([]);
 
 await fs.mkdir(OUT, { recursive: true });
 const manifest = {};

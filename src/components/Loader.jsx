@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { Antlers } from './Logo.jsx';
+import { LogoFull } from './Logo.jsx';
 import { SITE } from '../data/site.js';
 import { preload } from '../lib/images.js';
 import { reducedMotion } from '../lib/scroll.js';
@@ -39,8 +39,7 @@ export default function Loader({ assets, onDone }) {
   return (
     <div className="loader" ref={ref} role="status" aria-live="polite" aria-label={`Chargement : ${pct} %`}>
       <div className="loader__inner">
-        <Antlers className="loader__mark" />
-        <p className="loader__name">{SITE.name}</p>
+        <LogoFull className="loader__logo" />
         <span className="loader__line" style={{ transform: `scaleX(${pct / 100})` }} />
         <p className="loader__place">
           {SITE.place} · {SITE.region}

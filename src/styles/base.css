@@ -185,47 +185,29 @@ ol {
 .logo {
   position: relative;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: var(--white);
-  text-transform: uppercase;
-  text-align: center;
+  display: block;
+}
+.logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.logo__full {
+  display: block;
+  width: clamp(104px, 9vw, 136px);
+  filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.45));
 }
 .logo__mark {
-  width: 64px;
-  color: var(--gold);
-  margin-bottom: 6px;
+  display: none;
+  width: 58px;
 }
-.logo__name {
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-  line-height: 1.25;
-  letter-spacing: 0.32em;
-  font-weight: 400;
+.header.is-solid .logo__full,
+.header.is-open .logo__full {
+  display: none;
 }
-.logo__name span:last-child {
-  font-size: 15px;
-  letter-spacing: 0.28em;
-}
-.logo__place {
-  font-size: 8px;
-  letter-spacing: 0.4em;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 3px;
-}
-.logo__place::before,
-.logo__place::after {
-  content: '';
-  width: 14px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.6;
+.header.is-solid .logo__mark,
+.header.is-open .logo__mark {
+  display: block;
 }
 
 /* ── header ───────────────────────────────────────── */
@@ -258,17 +240,6 @@ ol {
 }
 .header.is-solid::before {
   opacity: 1;
-}
-.header.is-solid .logo__mark {
-  width: 40px;
-  margin-bottom: 2px;
-}
-.header .logo__mark {
-  transition: width 0.6s var(--ease-out), margin 0.6s var(--ease-out);
-}
-.header.is-solid .logo__name,
-.header.is-solid .logo__place {
-  display: none;
 }
 .header__nav {
   display: flex;
@@ -400,15 +371,14 @@ ol {
   gap: 14px;
   text-align: center;
 }
-.loader__mark {
-  width: 90px;
-  color: var(--gold);
+.loader__logo {
+  display: block;
+  width: clamp(170px, 22vw, 240px);
+  margin-bottom: 10px;
 }
-.loader__name {
-  font-size: 15px;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  font-weight: 400;
+.loader__logo img {
+  width: 100%;
+  height: auto;
 }
 .loader__line {
   display: block;
@@ -506,18 +476,11 @@ ol {
     padding-top: 16px;
     padding-bottom: 16px;
   }
+  .logo__full {
+    width: 92px;
+  }
   .logo__mark {
-    width: 44px;
-    margin-bottom: 2px;
-  }
-  .logo__name {
-    font-size: 9px;
-  }
-  .logo__name span:last-child {
-    font-size: 11px;
-  }
-  .logo__place {
-    display: none;
+    width: 48px;
   }
 }
 

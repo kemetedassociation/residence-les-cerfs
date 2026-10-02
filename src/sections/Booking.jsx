@@ -17,7 +17,7 @@ export default function Booking() {
   return (
     <section id="reserver" className="booking" aria-labelledby="booking-title">
       <div className="booking__bg" aria-hidden="true">
-        <Img image={BOOKING.image} focus="50% 62%" data-parallax="0.08" alt="" />
+        <Img image={BOOKING.image} focus="50% 45%" data-parallax="0.08" alt="" />
       </div>
       <div className="booking__inner">
         <div data-in>

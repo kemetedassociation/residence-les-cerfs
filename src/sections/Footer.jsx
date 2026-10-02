@@ -1,4 +1,4 @@
-import { Antlers } from '../components/Logo.jsx';
+import { LogoFull } from '../components/Logo.jsx';
 import { SITE } from '../data/site.js';
 import credits from '../data/credits.json';
 
@@ -8,8 +8,7 @@ export default function Footer() {
     <footer id="contact" className="footer">
       <div className="footer__grid">
         <div className="footer__brand">
-          <Antlers className="footer__mark" />
-          <p className="footer__name">{SITE.name}</p>
+          <LogoFull className="footer__logo" />
           <p className="kicker">
             {SITE.place} · {SITE.region}
           </p>
