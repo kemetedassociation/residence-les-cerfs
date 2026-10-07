@@ -4,7 +4,7 @@
 
 // Lien du bouton « RÉSERVER » (Airbnb, Booking.com, moteur propriétaire…).
 // Laisser vide ('') pour que le bouton ouvre un e-mail de demande de réservation.
-export const BOOKING_URL = '';
+export const BOOKING_URL = 'https://www.airbnb.fr/rooms/1647312292450231655';
 
 export const SITE = {
   name: 'Résidence Les Cerfs',
