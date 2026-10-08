@@ -12,7 +12,8 @@ import Icon from '../components/Icon.jsx';
 
 const byId = Object.fromEntries(SCENES.map((s) => [s.id, s]));
 const pad = (n) => String(n).padStart(2, '0');
-const SAFE = { side: 28, top: 84, bottom: 110 }; // zones où l'on n'affiche pas de hotspot
+// zones where no hotspot is drawn (header on top, room indicator at the bottom)
+const safeZone = () => ({ side: 28, top: 64, bottom: 110 });
 
 /** Pixel position of an image-space point (in %) inside the stage. */
 function pointOnStage(scene, pt, size) {
@@ -62,7 +63,11 @@ export default function Tour({ ready }) {
   const [uiId, setUiId] = useState(SCENES[0].id);
   const [settled, setSettled] = useState(false);
   const [openHs, setOpenHs] = useState(null);
-  const [exclude, setExclude] = useState(null);
+  const [exclude, setExclude] = useState([]); // rects hotspots must avoid (text, logo, menu button)
+  // mobile: long scene texts are clamped, « Lire la suite » unfolds them
+  const textRef = useRef(null);
+  const [clamped, setClamped] = useState(false);
+  const [more, setMore] = useState(false);
 
   const busy = useRef(false);
   const pending = useRef(null);
@@ -279,13 +284,27 @@ export default function Tour({ ready }) {
     return () => clearTimeout(t);
   }, [current, size]);
 
-  // ── text panel area: keep hotspots out of it ─────────────
   useLayoutEffect(() => {
-    if (!panelRef.current || !stageRef.current) return;
-    const a = panelRef.current.getBoundingClientRect();
+    setMore(false);
+  }, [uiId]);
+  useLayoutEffect(() => {
+    const t = textRef.current;
+    setClamped(Boolean(t) && !more && t.scrollHeight > t.clientHeight + 2);
+  }, [uiId, size, more]);
+
+  // ── areas covered by the UI: keep hotspots out of them ───
+  useLayoutEffect(() => {
+    if (!stageRef.current) return;
     const b = stageRef.current.getBoundingClientRect();
-    setExclude({ left: a.left - b.left, right: a.right - b.left, top: a.top - b.top, bottom: a.bottom - b.top });
-  }, [uiId, size, settled]);
+    const rect = (el, m) => {
+      if (!el) return null;
+      const a = el.getBoundingClientRect();
+      return { left: a.left - b.left, right: a.right - b.left, top: a.top - b.top, bottom: a.bottom - b.top, m };
+    };
+    setExclude(
+      [rect(panelRef.current, 24), rect(document.querySelector('.header .logo'), 12), rect(document.querySelector('.burger'), 12)].filter(Boolean),
+    );
+  }, [uiId, size, settled, more]);
 
   // ── mouse: subtle depth ──────────────────────────────────
   useEffect(() => {
@@ -344,30 +363,54 @@ export default function Tour({ ready }) {
   }, [navigate]);
 
   // ── hotspots of the scene in front ───────────────────────
-  const renderHotspots = (s) =>
-    s.hotspots.map((h, i) => {
+  const renderHotspots = (s) => {
+    const SAFE = safeZone();
+    const blocked = (x, y) => exclude.some((r) => x > r.left - r.m && x < r.right + r.m && y > r.top - r.m && y < r.bottom + r.m);
+    // screen box of a hotspot; passages carry a visible label
+    const box = (h, x, y, flip) => {
+      const w = 44 + (h.target ? h.title.length * 7.4 + 30 : 0);
+      return flip ? { l: x + 22 - w, r: x + 22, t: y - 22, b: y + 22 } : { l: x - 22, r: x - 22 + w, t: y - 22, b: y + 22 };
+    };
+    const placed = [];
+    const overlaps = (a) => placed.some((o) => a.l < o.r && a.r > o.l && a.t < o.b && a.b > o.t);
+    // plain hotspots first; passages are placed afterwards and make room
+    const order = s.hotspots.map((h, i) => ({ h, i })).sort((a, b) => Boolean(a.h.target) - Boolean(b.h.target));
+    const out = [];
+    for (const { h, i } of order) {
       const p = pointOnStage(s, h, size);
       const inFrame = p.x > SAFE.side && p.x < size.w - SAFE.side && p.y > SAFE.top && p.y < size.h - SAFE.bottom;
+      if (!inFrame && !h.target) continue;
       // a passage outside the frame is pinned to the edge it lies beyond
-      if (!inFrame && h.target) {
+      if (!inFrame) {
         p.x = Math.min(size.w - SAFE.side - 22, Math.max(SAFE.side + 22, p.x));
         p.y = Math.min(size.h - SAFE.bottom - 22, Math.max(SAFE.top + 22, p.y));
-      } else if (!inFrame) return null;
-      const ex = exclude;
-      if (ex && p.x > ex.left - 30 && p.x < ex.right + 30 && p.y > ex.top - 30 && p.y < ex.bottom + 30) return null;
-      return (
+      }
+      const flip = p.x > size.w * 0.62;
+      if (h.target) {
+        // slide the passage up or down until it is free
+        const y0 = p.y;
+        const free = [0, 48, -48, 96, -96, 144, -144, 192, -192]
+          .map((d) => y0 + d)
+          .find((y) => y > SAFE.top + 22 && y < size.h - SAFE.bottom - 22 && !blocked(p.x, y) && !overlaps(box(h, p.x, y, flip)));
+        if (free === undefined) continue;
+        p.y = free;
+      } else if (blocked(p.x, p.y) || overlaps(box(h, p.x, p.y, flip))) continue;
+      placed.push(box(h, p.x, p.y, flip));
+      out.push(
         <Hotspot
           key={`${s.id}-${h.id}`}
           hotspot={h}
           x={p.x}
           y={p.y}
           index={i}
-          flip={p.x > size.w * 0.62}
+          flip={flip}
           open={openHs === h.id}
           onClick={() => (h.target ? navigate(h.target, { origin: h }) : setOpenHs((o) => (o === h.id ? null : h.id)))}
-        />
+        />,
       );
-    });
+    }
+    return out;
+  };
 
   const onCta = () => {
     const c = ui.cta;
@@ -386,7 +429,7 @@ export default function Tour({ ready }) {
     <div id="top" className="tour-track" ref={trackRef} style={{ '--n': SCENES.length }}>
       <section
         ref={stageRef}
-        className={`tour${ui.hero ? ' is-hero' : ''}${settled ? ' is-settled' : ''}`}
+        className={`tour${ui.hero ? ' is-hero' : ''}${settled ? ' is-settled' : ''}${openHs ? ' has-sheet' : ''}`}
         aria-roledescription="visite"
         aria-label={`Visite de la ${SITE.name}`}
         onPointerDown={onPointerDown}
@@ -449,9 +492,22 @@ export default function Tour({ ready }) {
               <h2 className="scene-panel__title" data-reveal>
                 {ui.title}
               </h2>
-              <p className="scene-panel__text" data-reveal>
-                {ui.text}
-              </p>
+              <div data-reveal>
+                <p ref={textRef} id="scene-text" className={`scene-panel__text${more ? ' is-open' : ''}`}>
+                  {ui.text}
+                </p>
+                {(clamped || more) && (
+                  <button
+                    type="button"
+                    className="link-btn scene-panel__more"
+                    aria-expanded={more}
+                    aria-controls="scene-text"
+                    onClick={() => setMore((m) => !m)}
+                  >
+                    {more ? 'Réduire' : 'Lire la suite'}
+                  </button>
+                )}
+              </div>
               {ui.cta && (
                 <div data-reveal>
                   <button className="btn" onClick={onCta} data-cursor="explore">
