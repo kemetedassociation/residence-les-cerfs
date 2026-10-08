@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import Logo from './Logo.jsx';
-import { NAV, SITE, bookingHref } from '../data/site.js';
+import { NAV, SITE } from '../data/site.js';
+import BookingButton from './BookingButton.jsx';
 import { lockScroll, onScroll, reducedMotion } from '../lib/scroll.js';
 
 const MOBILE_LINKS = [
@@ -88,9 +89,7 @@ export default function Header() {
           <span>
             {SITE.place} · {SITE.region}
           </span>
-          <a href={bookingHref()} className="btn btn--small" target={bookingHref().startsWith('http') ? '_blank' : undefined} rel="noopener">
-            Réserver
-          </a>
+          <BookingButton className="btn--small" onClick={() => setOpen(false)} />
         </div>
       </div>
     </header>

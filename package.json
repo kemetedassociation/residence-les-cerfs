@@ -7,7 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "images": "node scripts/build-images.mjs",
-    "deploy": "sh scripts/deploy.sh"
+    "deploy": "sh scripts/deploy.sh",
+    "setup:booking": "node scripts/setup-backend.mjs",
+    "test": "node tests/booking-core.test.mjs"
   },
   "author": "",
   "license": "ISC",

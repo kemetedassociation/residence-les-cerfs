@@ -3,3 +3,5 @@ dist
 .DS_Store
 # photos sources pleine résolution (non publiées) — voir README
 src-assets
+.env
+supabase/.temp

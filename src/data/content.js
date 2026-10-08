@@ -76,3 +76,12 @@ export const BOOKING = {
   title: ['Votre séjour', 'commence ici'],
   image: 'interior/sejour-1',
 };
+
+// Conditions affichées au moment de payer — BROUILLON à faire valider avant la mise en service.
+export const BOOKING_TERMS = [
+  'La réservation est ferme dès le paiement de l’acompte de 30 % du montant total. Si l’arrivée a lieu dans moins de 30 jours, la totalité est réglée à la réservation.',
+  'Le solde est prélevé automatiquement sur la carte utilisée lors de la réservation, 30 jours avant la date d’arrivée.',
+  'Annulation plus de 30 jours avant l’arrivée : remboursement intégral des sommes versées. Annulation à moins de 30 jours : aucun remboursement, sauf si le logement est reloué pour les mêmes dates.',
+  'Arrivée à partir de 16 h, départ avant 10 h. Capacité maximale : 10 personnes.',
+  'Le ménage de fin de séjour est inclus dans le prix. La taxe de séjour est due selon le tarif en vigueur à Châtel.',
+];

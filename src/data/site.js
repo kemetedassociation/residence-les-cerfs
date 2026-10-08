@@ -2,9 +2,14 @@
 //  CONFIGURATION GÉNÉRALE — tout ce qui se modifie sans toucher au code
 // ─────────────────────────────────────────────────────────────
 
-// Lien du bouton « RÉSERVER » (Airbnb, Booking.com, moteur propriétaire…).
-// Laisser vide ('') pour que le bouton ouvre un e-mail de demande de réservation.
+// Annonce Airbnb : lien secondaire dans le panneau de réservation,
+// et lien du bouton « RÉSERVER » tant que la réservation directe n'est pas activée.
 export const BOOKING_URL = 'https://www.airbnb.fr/rooms/1647312292450231655';
+
+// Réservation directe (calendrier + paiement Stripe) : adresse des fonctions Supabase,
+// ex. 'https://abcdefgh.supabase.co/functions/v1'. Vide = réservation directe désactivée.
+// Aperçu sans serveur : ajouter ?demo=reservation à l'adresse du site.
+export const BOOKING_API = '';
 
 export const SITE = {
   name: 'Résidence Les Cerfs',
@@ -40,3 +45,14 @@ export const NAV = [
 export const bookingHref = () =>
   BOOKING_URL ||
   `mailto:${SITE.contact.email}?subject=${encodeURIComponent('Demande de réservation — ' + SITE.name)}`;
+
+/** 'live' (server configured), 'demo' (?demo=reservation) or null (link to Airbnb). */
+export const directBooking = () => {
+  if (BOOKING_API) return 'live';
+  try {
+    if (new URLSearchParams(location.search).get('demo') === 'reservation') return 'demo';
+  } catch {
+    /* no location (tests) */
+  }
+  return null;
+};

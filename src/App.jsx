@@ -8,6 +8,7 @@ import Experience from './sections/Experience.jsx';
 import Chatel from './sections/Chatel.jsx';
 import Booking from './sections/Booking.jsx';
 import Footer from './sections/Footer.jsx';
+import BookingDrawer from './components/booking/BookingDrawer.jsx';
 import { useParallax, useReveal } from './animations/reveal.js';
 import { lockScroll } from './lib/scroll.js';
 
@@ -32,6 +33,7 @@ export default function App() {
         <Booking />
       </main>
       <Footer />
+      <BookingDrawer />
     </>
   );
 }

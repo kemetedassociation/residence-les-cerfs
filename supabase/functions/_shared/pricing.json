@@ -1,0 +1,18 @@
+{
+  "_note": "TARIFS PROVISOIRES — à remplacer par les vrais montants avant la mise en ligne. Montants en centimes d'euro (35000 = 350,00 €). Les saisons se répètent chaque année ; from inclus, to exclu (MM-JJ).",
+  "currency": "eur",
+  "maxGuests": 10,
+  "checkInTime": "16:00",
+  "checkOutTime": "10:00",
+  "defaultSeason": { "name": "Basse saison", "nightly": 22000, "minNights": 2 },
+  "seasons": [
+    { "name": "Fêtes de fin d'année", "from": "12-19", "to": "01-04", "nightly": 45000, "minNights": 7 },
+    { "name": "Hiver", "from": "01-04", "to": "04-20", "nightly": 35000, "minNights": 4 },
+    { "name": "Été", "from": "07-01", "to": "09-01", "nightly": 28000, "minNights": 3 }
+  ],
+  "cleaningFee": 15000,
+  "touristTax": { "perAdultPerNight": 0, "_note": "Taxe de séjour par adulte et par nuit, en centimes — montant à confirmer avec la mairie de Châtel. 0 = ligne masquée." },
+  "deposit": { "percent": 30, "balanceDaysBefore": 30 },
+  "minLeadDays": 1,
+  "bookingWindowDays": 540
+}

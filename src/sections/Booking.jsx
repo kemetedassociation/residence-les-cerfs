@@ -1,17 +1,7 @@
 import Img from '../components/Img.jsx';
-import Icon from '../components/Icon.jsx';
+import BookingButton from '../components/BookingButton.jsx';
 import { BOOKING } from '../data/content.js';
-import { SITE, bookingHref } from '../data/site.js';
-
-export function BookingButton({ className = '' }) {
-  const href = bookingHref();
-  const external = href.startsWith('http');
-  return (
-    <a href={href} className={`btn ${className}`} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined} data-cursor="explore">
-      Réserver <Icon name="chevron" size={16} />
-    </a>
-  );
-}
+import { SITE, BOOKING_URL, directBooking } from '../data/site.js';
 
 export default function Booking() {
   return (
@@ -39,6 +29,11 @@ export default function Booking() {
           <a href="#contact" className="btn btn--ghost btn--wide" data-cursor="explore">
             Nous contacter
           </a>
+          {directBooking() && BOOKING_URL && (
+            <a href={BOOKING_URL} className="link-btn booking__alt" target="_blank" rel="noopener">
+              Aussi disponible sur Airbnb
+            </a>
+          )}
         </div>
       </div>
     </section>
