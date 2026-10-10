@@ -23,6 +23,7 @@ export default function Booking() {
             {SITE.place} · {SITE.region}
           </p>
           {SITE.price && <p className="booking__price">{SITE.price}</p>}
+          {SITE.registrationNumber && <p className="booking__reg">N° d’enregistrement {SITE.registrationNumber}</p>}
         </div>
         <div className="booking__actions" data-in style={{ '--d': '0.15s' }}>
           <BookingButton className="btn--wide" />

@@ -25,6 +25,7 @@ export default function Footer() {
               </li>
             )}
             <li>{address}</li>
+            {SITE.registrationNumber && <li>N° d’enregistrement : {SITE.registrationNumber}</li>}
           </ul>
         </div>
         {SITE.social.length > 0 && (

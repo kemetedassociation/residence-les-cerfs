@@ -225,7 +225,10 @@ export default function BookingDrawer() {
       <div className="bk__panel" data-lenis-prevent>
         <header className="bk__head">
           <div>
-            <p className="kicker">{SITE.name}</p>
+            <p className="kicker">
+              {SITE.name}
+              {SITE.registrationNumber && ` · N° ${SITE.registrationNumber}`}
+            </p>
             <h2 id="bk-title" className="bk__title">
               Réserver votre séjour
             </h2>

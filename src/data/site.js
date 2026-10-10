@@ -25,6 +25,9 @@ export const SITE = {
     address: 'Châtel, 74390 Haute-Savoie, France',
   },
 
+  // Numéro d'enregistrement du meublé (Déclaloc), obligatoire sur toute annonce
+  registrationNumber: '74063001813VP',
+
   // Prix indicatif affiché dans la section réservation ('' pour masquer)
   price: '',
 

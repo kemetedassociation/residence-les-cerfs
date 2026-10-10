@@ -412,6 +412,12 @@
   color: var(--muted);
   line-height: 2;
 }
+.booking__reg {
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
 .booking__price {
   margin-top: 14px;
   color: var(--beige);
