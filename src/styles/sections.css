@@ -469,7 +469,7 @@
   border-top: 1px solid var(--line);
   padding-top: 22px;
   font-size: 12px;
-  color: rgba(243, 240, 233, 0.5);
+  color: rgba(243, 240, 233, 0.64);
 }
 .footer__credits summary {
   cursor: pointer;
@@ -497,7 +497,7 @@
   gap: 8px 24px;
   margin-top: 26px;
   font-size: 11px;
-  color: rgba(243, 240, 233, 0.45);
+  color: rgba(243, 240, 233, 0.64);
 }
 .footer__legal nav {
   display: flex;

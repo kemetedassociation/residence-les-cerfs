@@ -65,14 +65,21 @@ Après un changement de tarifs : `npm run setup:booking` (redéploie le serveur)
 
 ---
 
-## Au quotidien
+## Au quotidien : l'espace propriétaire
 
-| Situation | Où |
+Adresse : **https://kemetedassociation.github.io/residence-les-cerfs/admin/** — mot de passe dans le fichier `.env` (`ADMIN_PASSWORD`).
+
+| Besoin | Dans l'espace propriétaire |
 |---|---|
-| Voir les réservations | Supabase → Table editor → `bookings` (statut `confirmed`), et Stripe → Paiements |
-| Un solde n'a pas pu être prélevé (la banque demande une validation) | `bookings.balance_status = failed`, motif dans `balance_error` : contacter le voyageur et lui envoyer un lien de paiement Stripe |
-| Annuler une réservation | Stripe → le paiement → **Rembourser**, puis dans `bookings` passer `status` à `cancelled` (les dates se libèrent sur le site et, au prochain passage, sur Airbnb) |
-| Bloquer des dates pour soi | Les bloquer dans le calendrier Airbnb : le site les reprend automatiquement |
+| Voir les réservations, coordonnées des voyageurs, montants encaissés | Onglets *À venir*, *Passées*, *Annulées* |
+| Annuler une réservation | « Annuler la réservation » : le remboursement prévu par les conditions est proposé ; vous pouvez tout rembourser, ne rien rembourser ou choisir un montant. Stripe rembourse aussitôt, les dates se libèrent sur le site et sur Airbnb. |
+| Un solde a été refusé par la banque | Alerte en haut de page : « Prélever le solde maintenant », ou « Lien de paiement du solde » à envoyer au voyageur (bouton e-mail prêt), ou « Solde réglé hors site » |
+| Bloquer des dates pour vous ou pour travaux | *Dates bloquées* : elles disparaissent du calendrier du site et sont transmises à Airbnb |
+| Vérifier la synchronisation Airbnb | Section *Synchronisation* (dernière lecture, erreur éventuelle) |
+
+Les paiements, reçus et virements restent consultables dans Stripe. Stripe envoie automatiquement un reçu au voyageur pour l'acompte et pour le solde.
+
+Après un changement de tarifs (`supabase/functions/_shared/pricing.json`) ou de conditions (`src/data/legal.js`) : `npm run setup:booking` puis `npm run deploy`.
 
 ## Ce qui est garanti
 
