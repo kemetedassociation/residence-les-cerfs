@@ -1,13 +1,16 @@
 // Daily (pg_cron): charges every balance that is due with the card saved at booking time.
-import { db, env, errMsg, frDate, json, stripe, todayIso } from '../_shared/common.ts';
+// Success → receipt e-mail. Refused (e.g. the bank asks for authentication) → the guest
+// automatically receives a payment link, the owner gets a copy and an alert in the owner space.
+import { db, env, errMsg, json, todayIso } from '../_shared/common.ts';
+import { balanceLink, chargeBalance } from '../_shared/balance.ts';
+import { sendGuestEmail } from '../_shared/mail.ts';
 
 Deno.serve(async (req) => {
   if (req.headers.get('x-cron-secret') !== env('CRON_SECRET')) return json({ error: 'forbidden' }, 403);
   const client = db();
-  const s = stripe();
   const { data: due, error } = await client
     .from('bookings')
-    .select('id, checkin, checkout, balance_cents, stripe_customer_id, stripe_payment_method_id, guest_email')
+    .select('*')
     .eq('status', 'confirmed')
     .eq('balance_status', 'scheduled')
     .lte('balance_due', todayIso());
@@ -15,36 +18,26 @@ Deno.serve(async (req) => {
 
   const results = [];
   for (const b of due ?? []) {
+    let failure = '';
     try {
-      const pi = await s.paymentIntents.create(
-        {
-          amount: b.balance_cents,
-          currency: 'eur',
-          customer: b.stripe_customer_id,
-          payment_method: b.stripe_payment_method_id,
-          off_session: true,
-          confirm: true,
-          description: `Solde — séjour du ${frDate(b.checkin)} au ${frDate(b.checkout)} — Résidence Les Cerfs`,
-          metadata: { booking_id: b.id, kind: 'balance' },
-          receipt_email: b.guest_email,
-        },
-        { idempotencyKey: `balance-${b.id}` },
-      );
-      const paid = pi.status === 'succeeded';
-      await client
-        .from('bookings')
-        .update(
-          paid
-            ? { balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null, balance_payment_intent: pi.id }
-            : { balance_status: 'failed', balance_error: `Statut Stripe : ${pi.status}`, balance_payment_intent: pi.id },
-        )
-        .eq('id', b.id);
-      results.push({ id: b.id, status: pi.status });
+      const pi = await chargeBalance(b, `balance-${b.id}`);
+      if (pi.status === 'succeeded') {
+        await client.from('bookings').update({ balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null, balance_payment_intent: pi.id }).eq('id', b.id);
+        results.push({ ref: b.ref, status: 'paid', mail: await sendGuestEmail(client, 'balancePaid', b) });
+        continue;
+      }
+      failure = `Statut Stripe : ${pi.status}`;
     } catch (e) {
-      // e.g. the bank asks for authentication: the owner follows up with the guest
-      await client.from('bookings').update({ balance_status: 'failed', balance_error: errMsg(e) }).eq('id', b.id);
-      results.push({ id: b.id, error: errMsg(e) });
+      failure = errMsg(e);
     }
+    await client.from('bookings').update({ balance_status: 'failed', balance_error: failure }).eq('id', b.id);
+    let mail = 'no link';
+    try {
+      mail = await sendGuestEmail(client, 'balanceFailed', b, { url: await balanceLink(b) });
+    } catch (e) {
+      mail = errMsg(e);
+    }
+    results.push({ ref: b.ref, status: 'failed', failure, mail });
   }
   return json({ processed: results.length, results });
 });

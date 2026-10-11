@@ -9,7 +9,7 @@
     "images": "node scripts/build-images.mjs",
     "deploy": "sh scripts/deploy.sh",
     "setup:booking": "node scripts/setup-backend.mjs",
-    "test": "node tests/booking-core.test.mjs"
+    "test": "node tests/booking-core.test.mjs && node tests/emails.test.mjs"
   },
   "author": "",
   "license": "ISC",

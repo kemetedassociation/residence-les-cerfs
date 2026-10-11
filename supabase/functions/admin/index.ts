@@ -1,6 +1,8 @@
 // Owner space API. POST { action, ... } — every action except `login` needs `Authorization: Bearer <token>`.
-import { cors, db, env, errMsg, frDate, json, pricing, stripe, todayIso } from '../_shared/common.ts';
+import { cors, db, env, errMsg, json, pricing, stripe, todayIso } from '../_shared/common.ts';
 import { guestCancellationRefund } from '../_shared/policy.js';
+import { balanceLink, chargeBalance } from '../_shared/balance.ts';
+import { sendGuestEmail } from '../_shared/mail.ts';
 
 const SESSION_H = 12;
 const enc = new TextEncoder();
@@ -112,7 +114,8 @@ Deno.serve(async (req) => {
           balance_status: b.balance_status === 'scheduled' || b.balance_status === 'failed' ? 'none' : b.balance_status,
         })
         .eq('id', b.id);
-      return json({ ok: true, refunded: refund });
+      const mail = body.notify === false ? 'not sent' : await sendGuestEmail(client, 'cancelled', b, { refunded: refund });
+      return json({ ok: true, refunded: refund, mail });
     }
 
     // ── owner blocks dates (exported to Airbnb too) ────
@@ -135,37 +138,19 @@ Deno.serve(async (req) => {
         await client.from('bookings').update({ balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: 'Réglé hors site (indiqué par le propriétaire)' }).eq('id', b.id);
         return json({ ok: true });
       }
-      const s = stripe();
-      const stay = `séjour du ${frDate(b.checkin)} au ${frDate(b.checkout)}`;
       if (body.action === 'balance-retry') {
         try {
-          const pi = await s.paymentIntents.create(
-            { amount: b.balance_cents, currency: 'eur', customer: b.stripe_customer_id, payment_method: b.stripe_payment_method_id, off_session: true, confirm: true, description: `Solde — ${stay} — Résidence Les Cerfs`, receipt_email: b.guest_email, metadata: { booking_id: b.id, kind: 'balance' } },
-            { idempotencyKey: `balance-retry-${b.id}-${Date.now()}` },
-          );
+          const pi = await chargeBalance(b, `balance-retry-${b.id}-${Date.now()}`);
           const paid = pi.status === 'succeeded';
           await client.from('bookings').update(paid ? { balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null, balance_payment_intent: pi.id } : { balance_status: 'failed', balance_error: `Statut Stripe : ${pi.status}` }).eq('id', b.id);
+          if (paid) await sendGuestEmail(client, 'balancePaid', b);
           return json({ ok: paid, status: pi.status });
         } catch (e) {
           await client.from('bookings').update({ balance_status: 'failed', balance_error: errMsg(e) }).eq('id', b.id);
           return json({ error: `Prélèvement refusé : ${errMsg(e)}` }, 402);
         }
       }
-      const site = env('SITE_URL').replace(/\/$/, '') + '/';
-      const session = await s.checkout.sessions.create({
-        mode: 'payment',
-        locale: 'fr',
-        payment_method_types: ['card'],
-        customer: b.stripe_customer_id ?? undefined,
-        customer_email: b.stripe_customer_id ? undefined : b.guest_email,
-        line_items: [{ quantity: 1, price_data: { currency: 'eur', unit_amount: b.balance_cents, product_data: { name: `Solde — ${stay}`, description: 'Résidence Les Cerfs, Châtel' } } }],
-        payment_intent_data: { description: `Solde — ${stay} — Résidence Les Cerfs`, receipt_email: b.guest_email, metadata: { booking_id: b.id, kind: 'balance' } },
-        metadata: { booking_id: b.id, kind: 'balance' },
-        expires_at: Math.floor(Date.now() / 1000) + 23 * 3600,
-        success_url: `${site}?reservation=solde#reserver`,
-        cancel_url: site,
-      });
-      return json({ url: session.url, expires: '23 heures' });
+      return json({ url: await balanceLink(b), expires: '23 heures' });
     }
 
     return json({ error: 'Action inconnue' }, 400);

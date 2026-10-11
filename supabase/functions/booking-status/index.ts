@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
   if (!/^cs_[A-Za-z0-9_]+$/.test(sid)) return json({ error: 'not found' }, 404);
   const { data } = await db()
     .from('bookings')
-    .select('status, checkin, checkout, adults, children, guest_name, total_cents, deposit_cents, balance_cents, balance_due')
+    .select('ref, status, checkin, checkout, adults, children, guest_name, total_cents, deposit_cents, balance_cents, balance_due')
     .eq('stripe_session_id', sid)
     .maybeSingle();
   if (!data) return json({ error: 'not found' }, 404);

@@ -1,6 +1,7 @@
 // Stripe → confirms a booking once the deposit is paid, frees the dates if the payment is abandoned.
 import { db, env, errMsg, json, stripe } from '../_shared/common.ts';
 import Stripe from 'npm:stripe@17';
+import { sendGuestEmail } from '../_shared/mail.ts';
 
 Deno.serve(async (req) => {
   const s = stripe();
@@ -33,6 +34,8 @@ Deno.serve(async (req) => {
       .from('bookings')
       .update({ balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null, balance_payment_intent: session.payment_intent as string })
       .eq('id', id);
+    const { data: paid } = await client.from('bookings').select('*').eq('id', id).single();
+    if (paid) await sendGuestEmail(client, 'balancePaid', paid);
     return json({ ok: true, balance: true });
   }
 
@@ -57,10 +60,15 @@ Deno.serve(async (req) => {
     if (error?.code === '23P01') {
       // paid after the hold ran out and the nights were taken meanwhile: refund at once
       await s.refunds.create({ payment_intent: pi.id, reason: 'duplicate' }, { idempotencyKey: `refund-${id}` });
-      await client.from('bookings').update({ status: 'cancelled', balance_error: 'Dates prises entre-temps — remboursé automatiquement' }).eq('id', id);
+      await client.from('bookings').update({ status: 'cancelled', cancelled_at: new Date().toISOString(), refunded_cents: pi.amount_received, balance_status: 'none', cancel_reason: 'Dates prises entre-temps, remboursé automatiquement' }).eq('id', id);
+      const { data: c } = await client.from('bookings').select('*').eq('id', id).single();
+      if (c) await sendGuestEmail(client, 'cancelled', c, { refunded: pi.amount_received });
       return json({ ok: true, refunded: true });
     }
     if (error) throw error;
+    // confirmation + receipt (if it fails, the hourly job sends it again)
+    const { data: confirmed } = await client.from('bookings').select('*').eq('id', id).single();
+    if (confirmed) await sendGuestEmail(client, 'confirmation', confirmed);
     return json({ ok: true });
   }
   return json({ ignored: event.type });

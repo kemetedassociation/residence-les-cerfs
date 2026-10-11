@@ -1,6 +1,7 @@
 // POST { checkin, checkout, adults, children, name, email, phone, message, acceptTerms }
 // → holds the dates for 30 min and returns a Stripe Checkout URL for the deposit (or full amount).
 import { quote, overlaps } from '../_shared/quote.js';
+import { makeRef } from '../_shared/emails.js';
 import { cors, db, env, expireHolds, frDate, json, pricing, stripe, syncAirbnb, unavailableRanges } from '../_shared/common.ts';
 
 const HOLD_MIN = 30;
@@ -46,9 +47,9 @@ Deno.serve(async (req) => {
         checkin, checkout, adults: q.adults, children: q.children,
         guest_name: name, guest_email: email, guest_phone: phone || null, message: message || null,
         total_cents: q.total, deposit_cents: q.deposit, balance_cents: q.balance, balance_due: q.balanceDue,
-        quote: q, hold_until: holdUntil, client_ip: ip || null,
+        quote: q, hold_until: holdUntil, client_ip: ip || null, ref: makeRef(checkin),
       })
-      .select('id')
+      .select('id, ref')
       .single();
     if (error) {
       // exclusion constraint: someone else took these nights a moment ago
@@ -75,19 +76,20 @@ Deno.serve(async (req) => {
             currency: pricing.currency,
             unit_amount: q.payNow,
             product_data: {
-              name: q.balance ? `Acompte ${pricing.deposit.percent} % — ${stay}` : stay,
-              description: `Résidence Les Cerfs, Châtel · ${q.nights} nuits · ${guests} voyageur${guests > 1 ? 's' : ''}` +
-                (q.balance && q.balanceDue ? ` · solde de ${(q.balance / 100).toFixed(2).replace('.', ',')} € prélevé le ${frDate(q.balanceDue)}` : ''),
+              name: `${q.balance ? `Acompte ${pricing.deposit.percent} %, ${stay.charAt(0).toLowerCase()}${stay.slice(1)}` : stay}, dossier ${booking.ref}`,
+              description: `Résidence Les Cerfs, Châtel, ${q.nights} nuits, ${guests} voyageur${guests > 1 ? 's' : ''}` +
+                (q.balance && q.balanceDue ? `. Solde de ${(q.balance / 100).toFixed(2).replace('.', ',')} € prélevé le ${frDate(q.balanceDue)}` : ''),
             },
           },
         },
       ],
       payment_intent_data: {
-        description: `${stay} — Résidence Les Cerfs`,
+        description: `${stay}, dossier ${booking.ref}, Résidence Les Cerfs`,
         receipt_email: email,
         metadata: {
           booking_id: booking.id,
           kind: q.balance ? 'deposit' : 'full',
+          dossier: booking.ref,
           arrivee: checkin,
           depart: checkout,
           voyageurs: `${q.adults} adulte(s), ${q.children} enfant(s)`,

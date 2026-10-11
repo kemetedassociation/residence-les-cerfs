@@ -1,0 +1,28 @@
+{
+  "_note": "Contenu des e-mails aux voyageurs. Les champs vides ne sont pas affichés. À COMPLÉTER : adresse, accès, parking, wifi, téléphone. Règlement intérieur : brouillon à valider.",
+  "signature": "Sandra, Résidence Les Cerfs",
+  "hostPhone": "",
+  "arrival": {
+    "address": "",
+    "access": "",
+    "parking": "",
+    "wifi": ""
+  },
+  "reviewUrl": "",
+  "houseRules": [
+    "Arrivée à partir de 16 h, départ avant 10 h.",
+    "Le logement accueille 10 personnes au maximum, visiteurs compris pour la nuit.",
+    "Il est strictement non-fumeur, cigarette électronique comprise.",
+    "Chaussures de ski, skis et bâtons restent dans le coin chaussures de l'entrée : merci de ne pas les porter dans les pièces.",
+    "Poêle à bois : ne laissez jamais le feu sans surveillance, utilisez uniquement du bois sec et ne jetez jamais de cendres chaudes à la poubelle.",
+    "Merci de respecter le calme de la résidence, en particulier après 22 h.",
+    "Les déchets triés sont à déposer aux points de collecte de la commune.",
+    "Signalez-nous tout de suite une casse ou un dysfonctionnement : nous trouverons une solution."
+  ],
+  "departure": [
+    "Vaisselle propre et rangée, lave-vaisselle et lave-linge vidés.",
+    "Poubelles et bouteilles déposées aux points de collecte.",
+    "Fenêtres fermées, lumières éteintes, poêle éteint.",
+    "Le ménage de fin de séjour est inclus : inutile de nettoyer à fond."
+  ]
+}

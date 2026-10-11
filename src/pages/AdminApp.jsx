@@ -102,6 +102,7 @@ function BookingCard({ b, token, onChange, flash }) {
   return (
     <article className={`ad-card ad-card--${b.status}`}>
       <div className="ad-card__main">
+        {b.ref && <p className="ad-card__ref">{b.ref}</p>}
         <p className="ad-card__dates">
           {fr(b.checkin)} → {fr(b.checkout)}
           <small>
@@ -203,7 +204,7 @@ function BookingCard({ b, token, onChange, flash }) {
           <div className="ad-row">
             <button className="btn btn--small" disabled={busy} onClick={() => run(async () => {
               const r = await api(token, 'cancel', { id: b.id, refund: mode, amount, reason });
-              flash(`Réservation annulée, ${euros(r.refunded)} remboursés. Les dates sont libérées.`, 'ok');
+              flash(`Réservation annulée, ${euros(r.refunded)} remboursés. Les dates sont libérées.${r.mail === 'sent' ? ' Le voyageur a été prévenu par e-mail.' : ''}`, 'ok');
               setCancel(null);
               onChange();
             })}>

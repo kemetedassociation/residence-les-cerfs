@@ -81,6 +81,33 @@ Les paiements, reçus et virements restent consultables dans Stripe. Stripe envo
 
 Après un changement de tarifs (`supabase/functions/_shared/pricing.json`) ou de conditions (`src/data/legal.js`) : `npm run setup:booking` puis `npm run deploy`.
 
+## E-mails aux voyageurs (envoyés depuis cerf74390@gmail.com)
+
+| Quand | E-mail |
+|---|---|
+| Paiement de l'acompte | Confirmation et reçu détaillé, avec numéro de dossier (copie au propriétaire) |
+| Solde prélevé | Reçu du solde |
+| Solde refusé par la banque | Lien de paiement envoyé automatiquement (copie au propriétaire) |
+| Veille de l'arrivée | Informations pratiques (adresse, accès, stationnement, wifi) |
+| Jour d'arrivée | Bienvenue et règlement intérieur |
+| Lendemain de l'arrivée | « Tout se passe bien ? » |
+| J+5 (séjours d'une semaine et plus) | Prise de nouvelles à mi-séjour |
+| Veille du départ | Consignes de départ |
+| Lendemain du départ | Merci et demande d'avis |
+| Annulation | Confirmation et montant remboursé (copie au propriétaire) |
+
+Les e-mails du séjour partent entre 9 h et 20 h. Chaque e-mail n'est envoyé qu'une fois ; un envoi raté est retenté l'heure suivante. Textes : `supabase/functions/_shared/emails.js` ; informations pratiques, règlement intérieur et consignes de départ : `supabase/functions/_shared/stay.json`.
+
+### Installation (une seule fois, 5 minutes, connecté à cerf74390@gmail.com)
+
+1. Ouvrir **script.google.com** → **Nouveau projet** → le nommer « Les Cerfs e-mails ».
+2. Effacer le contenu et coller tout le fichier **`mail-relay/Code.a-coller.gs`** (il contient déjà la clé secrète).
+3. Enregistrer, choisir la fonction **`autoriser`** dans la liste en haut, cliquer **Exécuter**, accepter les autorisations (Google affiche « application non validée » : *Paramètres avancés* → *Accéder à Les Cerfs e-mails*). Un e-mail de test arrive dans la boîte.
+4. **Déployer → Nouveau déploiement** → type **Application Web** ; *Exécuter en tant que* : **Moi** ; *Qui a accès* : **Tout le monde** → **Déployer** → copier l'**URL de l'application Web** (se termine par `/exec`).
+5. Ajouter dans `.env` la ligne `MAIL_RELAY_URL=` suivie de cette URL, puis lancer `npm run setup:booking`.
+
+Gmail permet d'envoyer 100 e-mails par jour depuis un compte gratuit, largement assez.
+
 ## Ce qui est garanti
 
 - Le prix est **recalculé par le serveur** : impossible de payer moins en modifiant la page.

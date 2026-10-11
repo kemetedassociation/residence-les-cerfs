@@ -5,3 +5,4 @@ dist
 src-assets
 .env
 supabase/.temp
+mail-relay/Code.a-coller.gs

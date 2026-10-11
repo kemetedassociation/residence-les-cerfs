@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const ENV_FILE = path.join(ROOT, '.env');
-const FUNCTIONS = ['availability', 'book', 'stripe-webhook', 'charge-balances', 'ical', 'booking-status', 'admin'];
+const FUNCTIONS = ['availability', 'book', 'stripe-webhook', 'charge-balances', 'ical', 'booking-status', 'admin', 'guest-emails'];
 
 // ── .env ─────────────────────────────────────────────
 const env = Object.fromEntries(
@@ -73,13 +73,20 @@ console.log('1/6 Base de données…');
 for (const f of fs.readdirSync(path.join(ROOT, 'supabase/migrations')).sort()) await sql(fs.readFileSync(path.join(ROOT, 'supabase/migrations', f), 'utf8'));
 
 // 2. generated secrets
-for (const k of ['ICAL_EXPORT_TOKEN', 'CRON_SECRET']) if (!env[k]) saveEnv(k, crypto.randomBytes(24).toString('hex'));
+for (const k of ['ICAL_EXPORT_TOKEN', 'CRON_SECRET', 'MAIL_RELAY_SECRET']) if (!env[k]) saveEnv(k, crypto.randomBytes(24).toString('hex'));
 // owner space password: readable groups, e.g. "k7fq-2mxp-9rwd-c4ht"
 if (!env.ADMIN_PASSWORD) {
   const abc = 'abcdefghjkmnpqrstuvwxyz23456789';
   const pick = () => Array.from(crypto.randomBytes(4), (n) => abc[n % abc.length]).join('');
   saveEnv('ADMIN_PASSWORD', [pick(), pick(), pick(), pick()].join('-'));
 }
+
+// Google Apps Script mail relay, ready to paste (never committed)
+fs.writeFileSync(
+  path.join(ROOT, 'mail-relay/Code.a-coller.gs'),
+  fs.readFileSync(path.join(ROOT, 'mail-relay/Code.gs'), 'utf8').replace('__MAIL_RELAY_SECRET__', env.MAIL_RELAY_SECRET),
+  { mode: 0o600 },
+);
 
 // 3. Stripe webhook (one per mode)
 console.log('2/6 Webhook Stripe…');
@@ -109,6 +116,8 @@ const secrets = {
   ICAL_EXPORT_TOKEN: env.ICAL_EXPORT_TOKEN,
   CRON_SECRET: env.CRON_SECRET,
   ADMIN_PASSWORD: env.ADMIN_PASSWORD,
+  MAIL_RELAY_SECRET: env.MAIL_RELAY_SECRET,
+  ...(env.MAIL_RELAY_URL ? { MAIL_RELAY_URL: env.MAIL_RELAY_URL } : {}),
   ...(env.AIRBNB_ICAL_URL ? { AIRBNB_ICAL_URL: env.AIRBNB_ICAL_URL } : {}),
 };
 await supa(`/v1/projects/${REF}/secrets`, {
@@ -133,7 +142,14 @@ console.log('5/6 Prélèvement automatique des soldes…');
 await sql(`
   create extension if not exists pg_cron;
   create extension if not exists pg_net;
-  select cron.unschedule(jobid) from cron.job where jobname = 'charge-balances';
+  select cron.unschedule(jobid) from cron.job where jobname in ('charge-balances', 'guest-emails');
+  select cron.schedule('guest-emails', '5 * * * *', $$
+    select net.http_post(
+      url := '${FN_BASE}/guest-emails',
+      headers := jsonb_build_object('x-cron-secret', '${env.CRON_SECRET}', 'content-type', 'application/json'),
+      body := '{}'::jsonb
+    );
+  $$);
   select cron.schedule('charge-balances', '0 6 * * *', $$
     select net.http_post(
       url := '${FN_BASE}/charge-balances',
@@ -153,6 +169,7 @@ else console.log(`  — le bouton « Réserver » reste sur Airbnb tant que ${ST
 const check = await fetch(`${FN_BASE}/availability`).then((r) => r.json()).catch((e) => ({ error: e.message }));
 console.log(check.ranges ? `  ✓ Disponibilités en ligne (${check.ranges.length} période(s) bloquée(s), synchro Airbnb : ${check.sync})` : `  ✗ ${JSON.stringify(check)}`);
 
+if (!env.MAIL_RELAY_URL) console.log('\n⚠ E-mails aux voyageurs pas encore actifs : installer mail-relay/Code.a-coller.gs (voir RESERVATION.md) puis ajouter MAIL_RELAY_URL dans .env et relancer.');
 console.log(`
 Terminé.
 • À coller dans Airbnb (Calendrier → Disponibilités → Synchroniser les calendriers → Importer) :

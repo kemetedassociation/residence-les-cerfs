@@ -412,6 +412,11 @@ export default function BookingDrawer() {
               <>
                 <p className="kicker">Réservation confirmée</p>
                 <h3>Merci {status.guest_name}, à très bientôt à Châtel.</h3>
+                {status.ref && (
+                  <p>
+                    Numéro de dossier : <strong>{status.ref}</strong>
+                  </p>
+                )}
                 <p>
                   Du <strong>{frDate(status.checkin)}</strong> au <strong>{frDate(status.checkout, { day: 'numeric', month: 'long', year: 'numeric' })}</strong>,{' '}
                   {status.adults + status.children} voyageur{status.adults + status.children > 1 ? 's' : ''}.
@@ -421,7 +426,7 @@ export default function BookingDrawer() {
                   {status.balance_cents > 0 &&
                     ` Solde de ${euros(status.balance_cents)} prélevé automatiquement le ${frDate(status.balance_due, { day: 'numeric', month: 'long', year: 'numeric' })}.`}
                 </p>
-                <p>Un reçu Stripe vous a été envoyé par e-mail. Pour toute question : {SITE.contact.email}</p>
+                <p>La confirmation et le détail de votre séjour vous sont envoyés par e-mail. Pour toute question : {SITE.contact.email}</p>
               </>
             ) : (
               <>
