@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import Logo from './Logo.jsx';
-import { NAV, SITE } from '../data/site.js';
+import { NAV, SITE, directBooking } from '../data/site.js';
+import { openBooking } from '../lib/booking-api.js';
 import BookingButton from './BookingButton.jsx';
 import { lockScroll, onScroll, reducedMotion } from '../lib/scroll.js';
 
@@ -51,7 +52,12 @@ export default function Header() {
       <Logo />
       <nav className="header__nav" aria-label="Navigation principale">
         {NAV.map((n) => (
-          <a key={n.href} href={n.href} data-cursor="explore">
+          <a
+            key={n.href}
+            href={n.href}
+            data-cursor="explore"
+            onClick={n.href === '#reserver' && directBooking() ? (e) => (e.preventDefault(), openBooking()) : undefined}
+          >
             {n.label}
           </a>
         ))}
@@ -78,7 +84,16 @@ export default function Header() {
         <ul>
           {MOBILE_LINKS.map((l, i) => (
             <li key={l.href}>
-              <a href={l.href} onClick={() => setOpen(false)}>
+              <a
+                href={l.href}
+                onClick={(e) => {
+                  setOpen(false);
+                  if (l.href === '#reserver' && directBooking()) {
+                    e.preventDefault();
+                    openBooking();
+                  }
+                }}
+              >
                 <span className="menu__num">{String(i + 1).padStart(2, '0')}</span>
                 {l.label}
               </a>

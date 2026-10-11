@@ -27,6 +27,15 @@ Deno.serve(async (req) => {
     return json({ ok: true });
   }
 
+  if (event.type === 'checkout.session.completed' && session.payment_status === 'paid' && session.metadata?.kind === 'balance') {
+    // balance paid through a payment link sent by the owner
+    await client
+      .from('bookings')
+      .update({ balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null, balance_payment_intent: session.payment_intent as string })
+      .eq('id', id);
+    return json({ ok: true, balance: true });
+  }
+
   if (event.type === 'checkout.session.completed' && session.payment_status === 'paid') {
     const pi = await s.paymentIntents.retrieve(session.payment_intent as string);
     const { data: b } = await client.from('bookings').select('status, balance_cents').eq('id', id).single();
@@ -40,6 +49,7 @@ Deno.serve(async (req) => {
         hold_until: null,
         stripe_customer_id: (session.customer as string) ?? null,
         stripe_payment_method_id: (pi.payment_method as string) ?? null,
+        deposit_payment_intent: pi.id,
         balance_status: b && b.balance_cents > 0 ? 'scheduled' : 'none',
       })
       .eq('id', id);

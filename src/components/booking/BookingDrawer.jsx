@@ -5,7 +5,7 @@ import { quote, euros, todayIso, addDays, diffDays, overlaps, seasonFor } from '
 import Calendar, { nightTaken, checkoutLimit } from './Calendar.jsx';
 import Icon from '../Icon.jsx';
 import { BOOKING_URL, SITE, directBooking } from '../../data/site.js';
-import { BOOKING_TERMS } from '../../data/content.js';
+import { BOOKING_TERMS } from '../../data/legal.js';
 import { createBooking, fetchAvailability, fetchBookingStatus } from '../../lib/booking-api.js';
 import { lockScroll, reducedMotion } from '../../lib/scroll.js';
 
@@ -129,8 +129,19 @@ export default function BookingDrawer() {
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     const r = p.get('reservation');
+    if (p.has('reserver') && mode) {
+      // shareable link: …/?reserver opens the booking panel
+      setOpen(true);
+      loadAvailability();
+    }
     if (!r || !mode) return;
     const clean = () => history.replaceState(null, '', location.pathname + (mode === 'demo' ? '?demo=reservation' : '') + location.hash);
+    if (r === 'solde') {
+      setNotice({ type: 'info', text: 'Merci, le solde de votre séjour est réglé. Un reçu vous a été envoyé par e-mail.' });
+      setOpen(true);
+      clean();
+      return;
+    }
     if (r === 'annulee') {
       setNotice({ type: 'info', text: 'Paiement annulé : aucune somme n’a été prélevée et vos dates ne sont pas réservées.' });
       setOpen(true);
@@ -164,7 +175,21 @@ export default function BookingDrawer() {
     else if (wasOpen.current) lockScroll(false);
     wasOpen.current = open;
     if (!open) return;
-    const esc = (e) => e.key === 'Escape' && setOpen(false);
+    const esc = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+      // keep keyboard focus inside the panel
+      if (e.key === 'Tab' && ref.current) {
+        const f = [...ref.current.querySelectorAll('button:not(:disabled), a[href], input, textarea')].filter((el) => el.offsetParent);
+        if (!f.length) return;
+        if (e.shiftKey && document.activeElement === f[0]) {
+          e.preventDefault();
+          f.at(-1).focus();
+        } else if (!e.shiftKey && document.activeElement === f.at(-1)) {
+          e.preventDefault();
+          f[0].focus();
+        }
+      }
+    };
     window.addEventListener('keydown', esc);
     return () => window.removeEventListener('keydown', esc);
   }, [open]);
@@ -328,7 +353,7 @@ export default function BookingDrawer() {
               </label>
               <label>
                 <span>Téléphone</span>
-                <input type="tel" autoComplete="tel" inputMode="tel" {...field('phone')} />
+                <input type="tel" required autoComplete="tel" inputMode="tel" pattern="[+0-9 ().-]{8,}" title="Numéro de téléphone" {...field('phone')} />
               </label>
               <label className="bk__full">
                 <span>Message (facultatif)</span>
@@ -350,6 +375,9 @@ export default function BookingDrawer() {
                 {BOOKING_TERMS.map((t) => (
                   <p key={t}>{t}</p>
                 ))}
+                <a href={`${import.meta.env.BASE_URL}conditions/`} target="_blank" rel="noopener" className="link-btn">
+                  Lire les conditions complètes
+                </a>
               </div>
             )}
             <p className="bk__secure">
@@ -433,7 +461,7 @@ export default function BookingDrawer() {
               <button
                 type="button"
                 className="btn"
-                disabled={busy || !accept || !form.name || !form.email}
+                disabled={busy || !accept || !form.name || !form.email || !form.phone}
                 onClick={(e) => e.currentTarget.closest('.bk__panel').querySelector('form')?.requestSubmit()}
               >
                 {busy ? 'Redirection…' : `Payer ${euros(q.payNow)}`} <Icon name="chevron" size={16} />

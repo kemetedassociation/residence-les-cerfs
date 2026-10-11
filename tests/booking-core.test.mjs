@@ -65,3 +65,11 @@ assert.deepEqual(parseIcal(buildIcal(ev)).map((e) => [e.start, e.end]), ev.map((
 assert.deepEqual(mergeRanges([{ start: '2026-12-10', end: '2026-12-15' }, { start: '2026-12-15', end: '2026-12-18' }, { start: '2027-01-01', end: '2027-01-03' }]), [{ start: '2026-12-10', end: '2026-12-18' }, { start: '2027-01-01', end: '2027-01-03' }]);
 
 console.log('booking core: all tests passed');
+
+// cancellation policy
+import { guestCancellationRefund } from '../supabase/functions/_shared/policy.js';
+const C = pricing.cancellation;
+assert.equal(guestCancellationRefund(C, 30, { checkin: '2027-02-06', paid: 90000 }, '2026-11-01').refund, 90000); // 97 days
+assert.equal(guestCancellationRefund(C, 30, { checkin: '2027-02-06', paid: 90000 }, '2026-12-20').refund, 0); // 48 days
+assert.equal(guestCancellationRefund(C, 30, { checkin: '2027-02-06', paid: 300000 }, '2027-01-20').refund, 0); // 17 days
+console.log('cancellation policy: all tests passed');

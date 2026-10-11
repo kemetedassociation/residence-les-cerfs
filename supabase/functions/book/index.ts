@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
     const message = clean(body.message, 1500);
     if (name.length < 2) return json({ error: 'Indiquez votre nom.' }, 400);
     if (!emailOk(email)) return json({ error: 'Adresse e-mail invalide.' }, 400);
+    if (phone.replace(/\D/g, '').length < 8) return json({ error: 'Indiquez un numéro de téléphone pour vous joindre avant l’arrivée.' }, 400);
     if (body.acceptTerms !== true) return json({ error: 'Merci d’accepter les conditions de réservation.' }, 400);
 
     // price is always recomputed here — never trusted from the browser
@@ -63,6 +64,8 @@ Deno.serve(async (req) => {
     const session = await stripe().checkout.sessions.create({
       mode: 'payment',
       locale: 'fr',
+      // card only: other methods confirm days later and could not hold the dates, nor pay the balance off-session
+      payment_method_types: ['card'],
       customer_email: email,
       customer_creation: 'always',
       line_items: [
@@ -81,11 +84,19 @@ Deno.serve(async (req) => {
       ],
       payment_intent_data: {
         description: `${stay} — Résidence Les Cerfs`,
-        metadata: { booking_id: booking.id, kind: q.balance ? 'deposit' : 'full' },
+        receipt_email: email,
+        metadata: {
+          booking_id: booking.id,
+          kind: q.balance ? 'deposit' : 'full',
+          arrivee: checkin,
+          depart: checkout,
+          voyageurs: `${q.adults} adulte(s), ${q.children} enfant(s)`,
+          telephone: phone,
+        },
         // keep the card for the automatic balance payment
         ...(q.balance ? { setup_future_usage: 'off_session' as const } : {}),
       },
-      metadata: { booking_id: booking.id },
+      metadata: { booking_id: booking.id, kind: q.balance ? 'deposit' : 'full' },
       expires_at: Math.floor(Date.now() / 1000) + HOLD_MIN * 60,
       success_url: `${site}?reservation=confirmee&session_id={CHECKOUT_SESSION_ID}#reserver`,
       cancel_url: `${site}?reservation=annulee#reserver`,

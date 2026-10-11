@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
   const s = stripe();
   const { data: due, error } = await client
     .from('bookings')
-    .select('id, checkin, checkout, balance_cents, stripe_customer_id, stripe_payment_method_id')
+    .select('id, checkin, checkout, balance_cents, stripe_customer_id, stripe_payment_method_id, guest_email')
     .eq('status', 'confirmed')
     .eq('balance_status', 'scheduled')
     .lte('balance_due', todayIso());
@@ -26,13 +26,18 @@ Deno.serve(async (req) => {
           confirm: true,
           description: `Solde — séjour du ${frDate(b.checkin)} au ${frDate(b.checkout)} — Résidence Les Cerfs`,
           metadata: { booking_id: b.id, kind: 'balance' },
+          receipt_email: b.guest_email,
         },
         { idempotencyKey: `balance-${b.id}` },
       );
       const paid = pi.status === 'succeeded';
       await client
         .from('bookings')
-        .update(paid ? { balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null } : { balance_status: 'failed', balance_error: `Statut Stripe : ${pi.status}` })
+        .update(
+          paid
+            ? { balance_status: 'paid', balance_paid_at: new Date().toISOString(), balance_error: null, balance_payment_intent: pi.id }
+            : { balance_status: 'failed', balance_error: `Statut Stripe : ${pi.status}`, balance_payment_intent: pi.id },
+        )
         .eq('id', b.id);
       results.push({ id: b.id, status: pi.status });
     } catch (e) {

@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const ENV_FILE = path.join(ROOT, '.env');
-const FUNCTIONS = ['availability', 'book', 'stripe-webhook', 'charge-balances', 'ical', 'booking-status'];
+const FUNCTIONS = ['availability', 'book', 'stripe-webhook', 'charge-balances', 'ical', 'booking-status', 'admin'];
 
 // ── .env ─────────────────────────────────────────────
 const env = Object.fromEntries(
@@ -70,10 +70,16 @@ const stripe = async (p, params) => {
 
 // 1. database
 console.log('1/6 Base de données…');
-await sql(fs.readFileSync(path.join(ROOT, 'supabase/migrations/001_booking.sql'), 'utf8'));
+for (const f of fs.readdirSync(path.join(ROOT, 'supabase/migrations')).sort()) await sql(fs.readFileSync(path.join(ROOT, 'supabase/migrations', f), 'utf8'));
 
 // 2. generated secrets
 for (const k of ['ICAL_EXPORT_TOKEN', 'CRON_SECRET']) if (!env[k]) saveEnv(k, crypto.randomBytes(24).toString('hex'));
+// owner space password: readable groups, e.g. "k7fq-2mxp-9rwd-c4ht"
+if (!env.ADMIN_PASSWORD) {
+  const abc = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const pick = () => Array.from(crypto.randomBytes(4), (n) => abc[n % abc.length]).join('');
+  saveEnv('ADMIN_PASSWORD', [pick(), pick(), pick(), pick()].join('-'));
+}
 
 // 3. Stripe webhook (one per mode)
 console.log('2/6 Webhook Stripe…');
@@ -102,6 +108,7 @@ const secrets = {
   SITE_URL,
   ICAL_EXPORT_TOKEN: env.ICAL_EXPORT_TOKEN,
   CRON_SECRET: env.CRON_SECRET,
+  ADMIN_PASSWORD: env.ADMIN_PASSWORD,
   ...(env.AIRBNB_ICAL_URL ? { AIRBNB_ICAL_URL: env.AIRBNB_ICAL_URL } : {}),
 };
 await supa(`/v1/projects/${REF}/secrets`, {

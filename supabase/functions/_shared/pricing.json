@@ -4,21 +4,89 @@
   "maxGuests": 10,
   "checkInTime": "16:00",
   "checkOutTime": "10:00",
-  "defaultSeason": { "name": "Automne", "weekly": 150000, "minNights": 2 },
+  "defaultSeason": {
+    "name": "Automne",
+    "weekly": 150000,
+    "minNights": 2
+  },
   "seasons": [
-    { "name": "Vacances de Noël", "from": "12-18", "to": "01-04", "weekly": 300000, "minNights": 7 },
-    { "name": "Vacances d'hiver", "from": "02-06", "to": "03-08", "weekly": 300000, "minNights": 7 },
-    { "name": "Vacances de printemps", "from": "04-03", "to": "05-03", "weekly": 300000, "minNights": 7 },
-    { "name": "Vacances de la Toussaint", "from": "10-23", "to": "11-08", "weekly": 180000, "minNights": 4 },
-    { "name": "Saison d'hiver", "from": "01-04", "to": "04-03", "weekly": 250000, "minNights": 4 },
-    { "name": "Printemps", "from": "05-03", "to": "07-03", "weekly": 160000, "minNights": 2 },
-    { "name": "Été", "from": "07-03", "to": "09-01", "weekly": 200000, "minNights": 5 },
-    { "name": "Automne", "from": "09-01", "to": "10-23", "weekly": 150000, "minNights": 2 },
-    { "name": "Avant les fêtes", "from": "11-08", "to": "12-18", "weekly": 200000, "minNights": 2 }
+    {
+      "name": "Vacances de Noël",
+      "from": "12-18",
+      "to": "01-04",
+      "weekly": 300000,
+      "minNights": 7
+    },
+    {
+      "name": "Vacances d'hiver",
+      "from": "02-06",
+      "to": "03-08",
+      "weekly": 300000,
+      "minNights": 7
+    },
+    {
+      "name": "Vacances de printemps",
+      "from": "04-03",
+      "to": "05-03",
+      "weekly": 300000,
+      "minNights": 7
+    },
+    {
+      "name": "Vacances de la Toussaint",
+      "from": "10-23",
+      "to": "11-08",
+      "weekly": 180000,
+      "minNights": 4
+    },
+    {
+      "name": "Saison d'hiver",
+      "from": "01-04",
+      "to": "04-03",
+      "weekly": 250000,
+      "minNights": 4
+    },
+    {
+      "name": "Printemps",
+      "from": "05-03",
+      "to": "07-03",
+      "weekly": 160000,
+      "minNights": 2
+    },
+    {
+      "name": "Été",
+      "from": "07-03",
+      "to": "09-01",
+      "weekly": 200000,
+      "minNights": 5
+    },
+    {
+      "name": "Automne",
+      "from": "09-01",
+      "to": "10-23",
+      "weekly": 150000,
+      "minNights": 2
+    },
+    {
+      "name": "Avant les fêtes",
+      "from": "11-08",
+      "to": "12-18",
+      "weekly": 200000,
+      "minNights": 2
+    }
   ],
   "cleaningFee": 0,
-  "touristTax": { "perAdultPerNight": 0, "_note": "Taxe de séjour par adulte et par nuit, en centimes — montant à confirmer avec la mairie de Châtel. 0 = ligne masquée." },
-  "deposit": { "percent": 30, "balanceDaysBefore": 30 },
+  "touristTax": {
+    "perAdultPerNight": 0,
+    "_note": "Taxe de séjour par adulte et par nuit, en centimes — montant à confirmer avec la mairie de Châtel. 0 = ligne masquée."
+  },
+  "deposit": {
+    "percent": 30,
+    "balanceDaysBefore": 30
+  },
   "minLeadDays": 1,
-  "bookingWindowDays": 540
+  "bookingWindowDays": 540,
+  "cancellation": {
+    "fullRefundDays": 60,
+    "_note": "Annulation par le voyageur : ≥ fullRefundDays jours avant l'arrivée → tout est remboursé ; entre deposit.balanceDaysBefore et fullRefundDays → l'acompte est conservé ; en dessous → rien n'est remboursé (sauf relocation, à la main)."
+  }
 }

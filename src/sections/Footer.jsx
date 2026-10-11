@@ -1,6 +1,7 @@
 import { LogoFull } from '../components/Logo.jsx';
 import { SITE } from '../data/site.js';
 import credits from '../data/credits.json';
+import { LEGAL_PAGES, OPERATOR } from '../data/legal.js';
 
 export default function Footer() {
   const { email, phone, address } = SITE.contact;
@@ -61,9 +62,18 @@ export default function Footer() {
           ))}
         </ul>
       </details>
-      <p className="footer__legal">
-        © {new Date().getFullYear()} {SITE.name}
-      </p>
+      <div className="footer__legal">
+        <nav aria-label="Informations légales">
+          {Object.values(LEGAL_PAGES).map((l) => (
+            <a key={l.slug} href={`${import.meta.env.BASE_URL}${l.slug}/`}>
+              {l.title}
+            </a>
+          ))}
+        </nav>
+        <p>
+          © {new Date().getFullYear()} {SITE.name} · {OPERATOR.name}
+        </p>
+      </div>
     </footer>
   );
 }
