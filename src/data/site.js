@@ -9,7 +9,7 @@ export const BOOKING_URL = 'https://www.airbnb.fr/rooms/1647312292450231655';
 // Réservation directe (calendrier + paiement Stripe) : adresse des fonctions Supabase,
 // ex. 'https://abcdefgh.supabase.co/functions/v1'. Vide = réservation directe désactivée.
 // Aperçu sans serveur : ajouter ?demo=reservation à l'adresse du site.
-export const BOOKING_API = '';
+export const BOOKING_API = 'https://xstcfnrgvjbkzpjkocmd.supabase.co/functions/v1';
 
 export const SITE = {
   name: 'Résidence Les Cerfs',
