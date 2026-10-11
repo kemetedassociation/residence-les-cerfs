@@ -139,8 +139,9 @@ await sql(`
 // 7. wire the website
 console.log('6/6 Site…');
 const siteFile = path.join(ROOT, 'src/data/site.js');
-if (STRIPE_KEY) fs.writeFileSync(siteFile, fs.readFileSync(siteFile, 'utf8').replace(/export const BOOKING_API = '.*?';/, `export const BOOKING_API = '${FN_BASE}';`));
-else console.log('  — le bouton « Réserver » reste sur Airbnb tant que Stripe n’est pas branché');
+// the site only takes payments once it can also see the Airbnb bookings (no double letting)
+if (STRIPE_KEY && env.AIRBNB_ICAL_URL) fs.writeFileSync(siteFile, fs.readFileSync(siteFile, 'utf8').replace(/export const BOOKING_API = '.*?';/, `export const BOOKING_API = '${FN_BASE}';`));
+else console.log(`  — le bouton « Réserver » reste sur Airbnb tant que ${STRIPE_KEY ? 'le calendrier Airbnb (AIRBNB_ICAL_URL)' : 'Stripe'} n’est pas branché`);
 
 const check = await fetch(`${FN_BASE}/availability`).then((r) => r.json()).catch((e) => ({ error: e.message }));
 console.log(check.ranges ? `  ✓ Disponibilités en ligne (${check.ranges.length} période(s) bloquée(s), synchro Airbnb : ${check.sync})` : `  ✗ ${JSON.stringify(check)}`);
