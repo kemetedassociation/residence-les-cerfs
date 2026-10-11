@@ -23,7 +23,7 @@ const store = {
 
 const fr = (d, year = true) =>
   new Date(d + 'T00:00:00Z').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' });
-const frTime = (t) => (t ? new Date(t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
+const frTime = (t) => (t ? new Date(t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais');
 const paidOf = (b) => (b.deposit_paid_at ? b.deposit_cents : 0) + (b.balance_status === 'paid' ? b.balance_cents : 0);
 
 async function api(token, action, payload = {}) {
@@ -106,7 +106,7 @@ function BookingCard({ b, token, onChange, flash }) {
         <p className="ad-card__dates">
           {fr(b.checkin)} → {fr(b.checkout)}
           <small>
-            {nights} nuits · {guests} voyageur{guests > 1 ? 's' : ''} ({b.adults} ad. {b.children ? `+ ${b.children} enf.` : ''})
+            {nights} nuits, {guests} voyageur{guests > 1 ? 's' : ''} ({b.adults} ad. {b.children ? `+ ${b.children} enf.` : ''})
           </small>
         </p>
         <p className="ad-card__guest">
@@ -172,7 +172,7 @@ function BookingCard({ b, token, onChange, flash }) {
             <button className="link-btn" onClick={() => navigator.clipboard?.writeText(link).then(() => flash('Lien copié.', 'ok'))}>
               Copier
             </button>
-            <a className="link-btn" href={`mailto:${b.guest_email}?subject=${encodeURIComponent('Solde de votre séjour — ' + SITE.name)}&body=${encodeURIComponent(`Bonjour,\n\nLe prélèvement automatique du solde de votre séjour n'a pas pu aboutir. Vous pouvez le régler ici :\n${link}\n\nMerci et à bientôt,\n${SITE.name}`)}`}>
+            <a className="link-btn" href={`mailto:${b.guest_email}?subject=${encodeURIComponent('Solde de votre séjour, ' + SITE.name)}&body=${encodeURIComponent(`Bonjour,\n\nLe prélèvement automatique du solde de votre séjour n'a pas pu aboutir. Vous pouvez le régler ici :\n${link}\n\nMerci et à bientôt,\n${SITE.name}`)}`}>
               Envoyer par e-mail
             </a>
           </div>
@@ -190,7 +190,7 @@ function BookingCard({ b, token, onChange, flash }) {
               <input type="radio" checked={mode === 'policy'} onChange={() => setMode('policy')} /> Selon les conditions ({euros(cancel.policy.refund)})
             </label>
             <label>
-              <input type="radio" checked={mode === 'full'} onChange={() => setMode('full')} /> Tout rembourser ({euros(cancel.paid)}) — annulation de votre fait
+              <input type="radio" checked={mode === 'full'} onChange={() => setMode('full')} /> Tout rembourser ({euros(cancel.paid)}), annulation de votre fait
             </label>
             <label>
               <input type="radio" checked={mode === 'none'} onChange={() => setMode('none')} /> Aucun remboursement
@@ -264,7 +264,7 @@ function Blocks({ data, token, onChange, flash }) {
             <span>
               {fr(x.start_date)} → {fr(x.end_date)}
             </span>
-            <span className="ad-src">{x.source === 'airbnb' ? `Airbnb · ${x.summary === 'Reserved' ? 'réservé' : 'bloqué'}` : `Vous${x.note ? ` · ${x.note}` : ''}`}</span>
+            <span className="ad-src">{x.source === 'airbnb' ? `Airbnb, ${x.summary === 'Reserved' ? 'réservé' : 'bloqué'}` : `Vous${x.note ? `, ${x.note}` : ''}`}</span>
             {x.source === 'manual' && (
               <button className="link-btn ad-danger" onClick={async () => {
                 await api(token, 'unblock', { id: x.id });
@@ -374,7 +374,7 @@ export default function AdminApp() {
           <section className="ad-stats">
             <div>
               <span>Prochaine arrivée</span>
-              <strong>{next ? fr(next.checkin, false) : '—'}</strong>
+              <strong>{next ? fr(next.checkin, false) : 'Aucune'}</strong>
               <small>{next ? next.guest_name : 'Aucune réservation à venir'}</small>
             </div>
             <div>

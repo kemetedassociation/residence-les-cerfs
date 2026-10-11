@@ -47,7 +47,7 @@ export const NAV = [
 
 export const bookingHref = () =>
   BOOKING_URL ||
-  `mailto:${SITE.contact.email}?subject=${encodeURIComponent('Demande de réservation — ' + SITE.name)}`;
+  `mailto:${SITE.contact.email}?subject=${encodeURIComponent('Demande de réservation, ' + SITE.name)}`;
 
 /** 'live' (server configured), 'demo' (?demo=reservation) or null (link to Airbnb). */
 export const directBooking = () => {

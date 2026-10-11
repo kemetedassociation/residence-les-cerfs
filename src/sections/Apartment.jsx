@@ -16,7 +16,7 @@ export default function Apartment() {
             data-in
             style={{ '--d': `${i * 0.1}s` }}
             data-cursor="view"
-            aria-label={`${c.title} — entrer dans la visite`}
+            aria-label={`${c.title} : entrer dans la visite`}
           >
             <span className="room-card__media">
               <Img image={c.image} focus={c.focus} sizes="(max-width: 720px) 100vw, 34vw" />
@@ -54,6 +54,14 @@ export default function Apartment() {
             </div>
           ))}
         </dl>
+        <ul className="apartment__location" aria-label="Situation et accès">
+          {APARTMENT.location.map((l, i) => (
+            <li key={l.label} data-in style={{ '--d': `${i * 0.08}s` }}>
+              <strong>{l.value}</strong>
+              <span>{l.label}</span>
+            </li>
+          ))}
+        </ul>
         <ul className="apartment__cols">
           {APARTMENT.columns.map((c, i) => (
             <li key={c.title} className="apartment__col" data-in style={{ '--d': `${0.1 + i * 0.12}s` }}>

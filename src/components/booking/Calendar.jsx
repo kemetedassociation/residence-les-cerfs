@@ -52,7 +52,7 @@ export default function Calendar({ month, onMonth, ranges, checkin, checkout, on
         ].join(' ')}
         disabled={disabled}
         onClick={() => onPick(date)}
-        aria-label={`${label}${taken ? ' — indisponible' : ''}`}
+        aria-label={`${label}${taken ? ', indisponible' : ''}`}
         aria-pressed={isStart || isEnd}
       >
         <span className="cal__num">{d}</span>

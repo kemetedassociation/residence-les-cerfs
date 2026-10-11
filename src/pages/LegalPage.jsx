@@ -9,7 +9,7 @@ export default function LegalPage({ page }) {
   return (
     <div className="legal">
       <header className="legal__head">
-        <a href={BASE} className="legal__logo" aria-label={`${SITE.name} — accueil`}>
+        <a href={BASE} className="legal__logo" aria-label={`${SITE.name} : accueil`}>
           <LogoFull />
         </a>
         <a href={BASE} className="link-btn">
@@ -39,7 +39,7 @@ export default function LegalPage({ page }) {
           ))}
         </nav>
         <p>
-          © {new Date().getFullYear()} {OPERATOR.name} · {SITE.name}
+          © {new Date().getFullYear()} {OPERATOR.name}, {SITE.name}
         </p>
       </footer>
     </div>

@@ -20,11 +20,11 @@ function Stepper({ label, value, min, max, onChange, hint }) {
         {hint && <p className="stepper__hint">{hint}</p>}
       </div>
       <div className="stepper__ctrl">
-        <button type="button" onClick={() => onChange(value - 1)} disabled={value <= min} aria-label={`Moins — ${label}`}>
+        <button type="button" onClick={() => onChange(value - 1)} disabled={value <= min} aria-label={`Moins de ${label.toLowerCase()}`}>
           −
         </button>
         <span aria-live="polite">{value}</span>
-        <button type="button" onClick={() => onChange(value + 1)} disabled={value >= max} aria-label={`Plus — ${label}`}>
+        <button type="button" onClick={() => onChange(value + 1)} disabled={value >= max} aria-label={`Plus de ${label.toLowerCase()}`}>
           +
         </button>
       </div>
@@ -252,7 +252,7 @@ export default function BookingDrawer() {
           <div>
             <p className="kicker">
               {SITE.name}
-              {SITE.registrationNumber && ` · N° ${SITE.registrationNumber}`}
+              {SITE.registrationNumber && `, n° ${SITE.registrationNumber}`}
             </p>
             <h2 id="bk-title" className="bk__title">
               Réserver votre séjour
@@ -263,7 +263,7 @@ export default function BookingDrawer() {
           </button>
         </header>
 
-        {mode === 'demo' && <p className="bk__demo">Aperçu — mode démonstration, aucun paiement n’est effectué.</p>}
+        {mode === 'demo' && <p className="bk__demo">Aperçu en mode démonstration : aucun paiement n’est effectué.</p>}
 
         {(step === 'dates' || step === 'details') && (
           <ol className="bk__steps" aria-label="Étapes">
@@ -283,11 +283,11 @@ export default function BookingDrawer() {
             <div className="bk__picked">
               <div className={!checkin || (checkin && checkout) ? 'is-focus' : ''}>
                 <span>Arrivée</span>
-                <strong>{checkin ? frDate(checkin, { weekday: 'short', day: 'numeric', month: 'short' }) : '—'}</strong>
+                <strong>{checkin ? frDate(checkin, { weekday: 'short', day: 'numeric', month: 'short' }) : 'À choisir'}</strong>
               </div>
               <div className={checkin && !checkout ? 'is-focus' : ''}>
                 <span>Départ</span>
-                <strong>{checkout ? frDate(checkout, { weekday: 'short', day: 'numeric', month: 'short' }) : '—'}</strong>
+                <strong>{checkout ? frDate(checkout, { weekday: 'short', day: 'numeric', month: 'short' }) : 'À choisir'}</strong>
               </div>
             </div>
             <p className="bk__hint">
@@ -297,7 +297,7 @@ export default function BookingDrawer() {
                   ? 'Choisissez votre date d’arrivée. Prix par nuit indiqué sous chaque date.'
                   : !checkout
                     ? `Choisissez votre date de départ (${seasonFor(pricing, checkin).minNights} nuits minimum à cette période).`
-                    : `${diffDays(checkin, checkout)} nuits · arrivée dès ${pricing.checkInTime}, départ avant ${pricing.checkOutTime}`}
+                    : `${diffDays(checkin, checkout)} nuits, arrivée dès ${pricing.checkInTime}, départ avant ${pricing.checkOutTime}`}
             </p>
             <Calendar
               month={month}
@@ -319,7 +319,7 @@ export default function BookingDrawer() {
               <Stepper label="Adultes" value={adults} min={1} max={pricing.maxGuests - children} onChange={setAdults} />
               <Stepper label="Enfants" hint="moins de 18 ans" value={children} min={0} max={pricing.maxGuests - adults} onChange={setChildren} />
               <p className="bk__cap">
-                {guests} / {pricing.maxGuests} voyageurs · 3 chambres et une mezzanine
+                {guests} / {pricing.maxGuests} voyageurs (3 chambres et une mezzanine)
               </p>
             </div>
 
@@ -336,7 +336,7 @@ export default function BookingDrawer() {
                   {frDate(checkin)} → {frDate(checkout, { day: 'numeric', month: 'long', year: 'numeric' })}
                 </strong>
                 <br />
-                {q.nights} nuits · {guests} voyageur{guests > 1 ? 's' : ''}
+                {q.nights} nuits, {guests} voyageur{guests > 1 ? 's' : ''}
               </p>
               <button type="button" className="link-btn" onClick={() => setStep('dates')}>
                 Modifier
@@ -451,7 +451,7 @@ export default function BookingDrawer() {
                 <>
                   <strong>{euros(q.total)}</strong>
                   <span>
-                    {q.nights} nuits · {q.balance ? `acompte ${euros(q.deposit)}` : 'paiement unique'}
+                    {q.nights} nuits, {q.balance ? `acompte ${euros(q.deposit)}` : 'paiement unique'}
                   </span>
                 </>
               ) : (

@@ -20,7 +20,7 @@ export default function Booking() {
           <p className="booking__place">
             {SITE.name}
             <br />
-            {SITE.place} · {SITE.region}
+            {SITE.place}, {SITE.region}
           </p>
           {SITE.price && <p className="booking__price">{SITE.price}</p>}
           {SITE.registrationNumber && <p className="booking__reg">N° d’enregistrement {SITE.registrationNumber}</p>}

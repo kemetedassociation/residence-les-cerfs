@@ -1,11 +1,12 @@
 {
-  "_note": "Contenu des e-mails aux voyageurs. Les champs vides ne sont pas affichés. À COMPLÉTER : adresse, accès, parking, wifi, téléphone. Règlement intérieur : brouillon à valider.",
+  "_note": "Contenu des e-mails aux voyageurs. Les champs vides ne sont pas affichés. À COMPLÉTER : accès et clés (access), wifi, téléphone (hostPhone), numéro de rue. Règlement intérieur : brouillon à valider.",
   "signature": "Sandra, Résidence Les Cerfs",
   "hostPhone": "",
   "arrival": {
-    "address": "",
+    "address": "Rue Roquet, 74390 Châtel. L'appartement se trouve au deuxième étage.",
     "access": "",
-    "parking": "",
+    "parking": "Deux places de stationnement extérieures. Garez-vous impérativement le long du mur.",
+    "ski": "Télécabine de Super-Châtel à 5 minutes à pied. Arrêt de la navette à environ 50 m.",
     "wifi": ""
   },
   "reviewUrl": "",

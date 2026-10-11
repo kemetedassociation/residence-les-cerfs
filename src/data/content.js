@@ -2,13 +2,20 @@
 
 export const APARTMENT = {
   title: "L'appartement",
-  intro: 'Trois chambres, une mezzanine et deux salles de bain, sur deux niveaux, pour allier confort, élégance et authenticité alpine.',
+  intro: 'Trois chambres, une mezzanine et deux salles de bain sur deux niveaux, au deuxième étage, à 5 minutes à pied de la télécabine de Super-Châtel.',
   // Chiffres clés affichés sous le titre
   facts: [
     { value: '3', label: 'Chambres', detail: 'lit 160 cm chacune' },
     { value: '1', label: 'Mezzanine', detail: 'lit double + 2 lits simples' },
     { value: '2', label: 'Salles de bain', detail: 'dont une à l’étage' },
     { value: '10', label: 'Couchages', detail: 'répartis sur 6 lits' },
+  ],
+  // Situation et accès (sans l'adresse exacte, envoyée aux voyageurs la veille de l'arrivée)
+  location: [
+    { value: '5 min', label: 'à pied de la télécabine de Super-Châtel' },
+    { value: '50 m', label: 'de l’arrêt de la navette' },
+    { value: '2', label: 'places de parking extérieures' },
+    { value: '2e', label: 'étage' },
   ],
   columns: [
     { icon: 'sofa', title: 'Séjour & cuisine', scene: 'sejour-1', items: ['Cuisine moderne et équipée', 'Salle à manger', 'Salon', 'Poêle à bois'] },
@@ -32,7 +39,7 @@ export const APARTMENT = {
     {
       name: 'Étage',
       items: [
-        'Mezzanine : lit superposé — lit double (2 places) en bas, deux lits simples (1 place) en haut',
+        'Mezzanine : lit superposé, avec un lit double (2 places) en bas et deux lits simples (1 place) en haut',
         'Troisième chambre, lit de 160 cm',
         'Petite salle de bain',
       ],
@@ -53,7 +60,7 @@ export const EXPERIENCE = {
     { word: 'Bois', text: 'Poutres anciennes, bardage brut, parquet chêne.', image: 'interior/chambre-1', focus: '70% 30%' },
     { word: 'Lumière', text: 'Velux sur les sommets, lumière basse le soir.', image: 'interior/sejour-1', focus: '30% 15%' },
     { word: 'Confort', text: 'Canapé profond, peaux, poêle à bois.', image: 'interior/sejour-2', focus: '35% 55%' },
-    { word: 'Montagne', text: 'Les Portes du Soleil au pied de la porte.', image: 'chatel/ski', focus: '50% 50%' },
+    { word: 'Montagne', text: 'La télécabine de Super-Châtel à 5 minutes à pied, la navette à 50 m.', image: 'chatel/ski', focus: '50% 50%' },
   ],
 };
 
@@ -62,7 +69,7 @@ export const CHATEL = {
   title: ['Entre montagne', 'et art de vivre'],
   text: 'Un village alpin authentique, un domaine exceptionnel, des activités été comme hiver, au cœur des Portes du Soleil.',
   categories: [
-    { id: 'ski', label: 'Ski', icon: 'ski', image: 'chatel/ski', text: '600 km de pistes reliées entre France et Suisse sur le domaine des Portes du Soleil.' },
+    { id: 'ski', label: 'Ski', icon: 'ski', image: 'chatel/ski', text: 'La télécabine de Super-Châtel à 5 minutes à pied de l’appartement, puis 600 km de pistes reliées entre France et Suisse sur les Portes du Soleil.' },
     { id: 'randonnee', label: 'Randonnée', icon: 'hike', image: 'chatel/randonnee', text: 'Sentiers d’alpage, cols et crêtes au départ du village dès la fonte des neiges.' },
     { id: 'village', label: 'Village', icon: 'village', image: 'chatel/village', text: 'Chalets de bois, église Saint-Laurent, marchés et boutiques au fil de la Dranse.' },
     { id: 'nature', label: 'Nature', icon: 'tree', image: 'chatel/nature', text: 'Le lac de Vonnes, ses reflets et sa promenade, à quelques minutes du centre.' },

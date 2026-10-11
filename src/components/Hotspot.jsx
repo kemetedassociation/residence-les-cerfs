@@ -8,7 +8,7 @@ export default function Hotspot({ hotspot, x, y, index, flip, open, onClick }) {
       className={`hotspot${door ? ' hotspot--door' : ''}${flip ? ' hotspot--flip' : ''}${open ? ' is-open' : ''}`}
       style={{ left: x, top: y, '--i': index }}
       onClick={onClick}
-      aria-label={door ? `${hotspot.title} — y aller` : hotspot.title}
+      aria-label={door ? `${hotspot.title} : y aller` : hotspot.title}
       aria-expanded={door ? undefined : open}
       data-cursor="explore"
     >

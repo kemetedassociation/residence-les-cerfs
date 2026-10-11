@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="footer__brand">
           <LogoFull className="footer__logo" />
           <p className="kicker">
-            {SITE.place} · {SITE.region}
+            {SITE.place}, {SITE.region}
           </p>
         </div>
         <div>
@@ -56,8 +56,8 @@ export default function Footer() {
             <li key={c.source}>
               <a href={c.source} target="_blank" rel="noopener">
                 {c.title.replace(/\.(jpe?g|JPG)$/, '')}
-              </a>{' '}
-              — {c.author}, {c.license}
+              </a>
+              {`, ${c.author} (${c.license})`}
             </li>
           ))}
         </ul>
@@ -71,7 +71,7 @@ export default function Footer() {
           ))}
         </nav>
         <p>
-          © {new Date().getFullYear()} {SITE.name} · {OPERATOR.name}
+          © {new Date().getFullYear()} {SITE.name}, {OPERATOR.name}
         </p>
       </div>
     </footer>

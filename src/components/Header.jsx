@@ -102,7 +102,7 @@ export default function Header() {
         </ul>
         <div className="menu__foot">
           <span>
-            {SITE.place} · {SITE.region}
+            {SITE.place}, {SITE.region}
           </span>
           <BookingButton className="btn--small" onClick={() => setOpen(false)} />
         </div>

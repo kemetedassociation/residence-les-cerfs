@@ -52,7 +52,7 @@ export const LEGAL_PAGES = {
       {
         h: '2. Le logement',
         p: [
-          `Appartement meublé sur deux niveaux à Châtel (74390), comprenant trois chambres équipées chacune d’un lit de 160 cm, une mezzanine avec un lit superposé (un lit double en bas, deux lits simples en haut), deux salles de bain, une cuisine équipée, un séjour avec poêle à bois et un lave-linge.`,
+          `Appartement meublé sur deux niveaux, au deuxième étage, à Châtel (74390), à 5 minutes à pied de la télécabine de Super-Châtel, avec deux places de stationnement extérieures. Il comprend trois chambres équipées chacune d’un lit de 160 cm, une mezzanine avec un lit superposé (un lit double en bas, deux lits simples en haut), deux salles de bain, une cuisine équipée, un séjour avec poêle à bois et un lave-linge.`,
           `Capacité maximale : ${pricing.maxGuests} personnes, enfants compris. Cette capacité ne peut être dépassée.`,
           'La location est consentie à titre de résidence de vacances ; le voyageur ne peut se prévaloir d’aucun droit au maintien dans les lieux à l’issue du séjour.',
         ],
@@ -137,13 +137,13 @@ export const LEGAL_PAGES = {
       },
       {
         h: 'Logement',
-        p: [OPERATOR.property, `Meublé de tourisme — numéro d’enregistrement : ${OPERATOR.registration}`],
+        p: [OPERATOR.property, `Meublé de tourisme, numéro d’enregistrement : ${OPERATOR.registration}`],
       },
       {
         h: 'Hébergement',
         p: [
-          'Site : GitHub Pages — GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.',
-          'Réservations : Supabase, Inc. — données hébergées dans l’Union européenne (Francfort, Allemagne).',
+          'Site : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.',
+          'Réservations : Supabase, Inc., données hébergées dans l’Union européenne (Francfort, Allemagne).',
           'Paiements : Stripe Payments Europe, Ltd., 1 Grand Canal Street Lower, Dublin 2, Irlande.',
         ],
       },

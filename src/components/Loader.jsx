@@ -42,7 +42,7 @@ export default function Loader({ assets, onDone }) {
         <LogoFull className="loader__logo" />
         <span className="loader__line" style={{ transform: `scaleX(${pct / 100})` }} />
         <p className="loader__place">
-          {SITE.place} · {SITE.region}
+          {SITE.place}, {SITE.region}
         </p>
         <p className="loader__pct" aria-hidden="true">
           {pct < 100 ? String(pct).padStart(2, '0') : '100%'}

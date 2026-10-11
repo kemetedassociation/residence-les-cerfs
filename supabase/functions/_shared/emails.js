@@ -40,7 +40,7 @@ function render({ title, preheader, blocks }, stay) {
         `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-collapse:collapse;border-top:1px solid #e3dccf">${b.rows
           .map(
             ([l, v, strong]) =>
-              `<tr><td style="padding:9px 0;border-bottom:1px solid #e3dccf;font-size:14px;color:#6b635b">${esc(l)}</td><td align="right" style="padding:9px 0;border-bottom:1px solid #e3dccf;font-size:14px;color:#1d1a17;${strong ? 'font-weight:bold' : ''}">${esc(v)}</td></tr>`,
+              `<tr><td valign="top" style="padding:9px 0;border-bottom:1px solid #e3dccf;font-size:14px;color:#6b635b;white-space:nowrap">${esc(l)}</td><td align="${String(v).length > 40 ? 'left' : 'right'}" style="padding:9px 0 9px 14px;border-bottom:1px solid #e3dccf;font-size:14px;line-height:1.5;color:#1d1a17;${strong ? 'font-weight:bold' : ''}">${esc(v)}</td></tr>`,
           )
           .join('')}</table>`,
       );
@@ -88,11 +88,13 @@ const arrivalBlocks = (stay) => {
     ['Adresse', a.address],
     ['Accès et clés', a.access],
     ['Stationnement', a.parking],
+    ['Pistes', a.ski],
     ['Wifi', a.wifi],
   ].filter(([, v]) => v);
-  return rows.length
-    ? [{ rows }]
-    : [{ p: 'Nous vous appellerons pour organiser votre arrivée et la remise des clés. Vous pouvez aussi répondre simplement à cet e-mail.' }];
+  return [
+    ...(rows.length ? [{ rows }] : []),
+    ...(a.access ? [] : [{ p: 'Pour la remise des clés, nous vous appelons avant votre arrivée. Vous pouvez aussi répondre simplement à cet e-mail.' }]),
+  ];
 };
 
 // ── templates ──────────────────────────────────────────

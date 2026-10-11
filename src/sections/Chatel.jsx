@@ -25,7 +25,7 @@ export default function Chatel() {
           </h2>
           <p className="chatel__text">{CHATEL.text}</p>
           <p className="chatel__detail" aria-live="polite">
-            <span>{current.label}</span> — {current.text}
+            <span>{current.label}</span> : {current.text}
           </p>
         </div>
       </div>

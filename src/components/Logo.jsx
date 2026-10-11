@@ -24,7 +24,7 @@ export function LogoFull({ className = '' }) {
 
 export default function Logo() {
   return (
-    <a href="#top" className="logo" aria-label={`${SITE.name}, ${SITE.place} — accueil`}>
+    <a href="#top" className="logo" aria-label={`${SITE.name}, ${SITE.place} : accueil`}>
       <LogoFull className="logo__full" />
       <LogoMark className="logo__mark" />
     </a>

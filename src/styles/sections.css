@@ -147,6 +147,46 @@
   color: var(--muted);
   font-size: 13px;
 }
+.apartment__location {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin: 0 0 clamp(40px, 5vw, 72px);
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.apartment__location li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 22px;
+  background: var(--black-soft);
+}
+.apartment__location strong {
+  flex: none;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--beige);
+}
+.apartment__location span {
+  font-size: 13px;
+  color: rgba(243, 240, 233, 0.82);
+}
+@media (max-width: 1000px) {
+  .apartment__location {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 420px) {
+  .apartment__location {
+    grid-template-columns: 1fr;
+  }
+  .apartment__location li {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 12px;
+  }
+}
 .apartment__levels {
   display: grid;
   grid-template-columns: 1fr 1fr;

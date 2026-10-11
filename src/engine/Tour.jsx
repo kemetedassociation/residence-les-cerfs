@@ -33,7 +33,7 @@ function SceneLayer({ scene, size, layerRef, camRef, hotspots }) {
           <img
             className={`tour__img${scene.tone ? ` tone-${scene.tone}` : ''}`}
             src={pickSrc(scene.image, r.width)}
-            alt={scene.alt ?? `${scene.title ?? 'Châtel'} — ${SITE.name}`}
+            alt={scene.alt ?? `${scene.title ?? 'Châtel'}, ${SITE.name}`}
             width={getImage(scene.image).width}
             height={getImage(scene.image).height}
             style={{ left: r.left, top: r.top, width: r.width, height: r.height }}
@@ -457,7 +457,7 @@ export default function Tour({ ready }) {
           {ui.hero ? (
             <div className="hero" ref={panelRef} key="hero">
               <p className="kicker" data-reveal>
-                {SITE.name} · {SITE.place}
+                {SITE.name}, {SITE.place}
               </p>
               <h1 className="hero__title">
                 {SITE.tagline.map((l) => (
@@ -485,7 +485,7 @@ export default function Tour({ ready }) {
                 {pad(ri + 1)} / {pad(ROOMS.length)}
                 {roomScenes.length > 1 && (
                   <span className="scene-panel__sub">
-                    {' '}— {pad(roomScenes.indexOf(ui) + 1)} / {pad(roomScenes.length)}
+                    {' '}({pad(roomScenes.indexOf(ui) + 1)} / {pad(roomScenes.length)})
                   </span>
                 )}
               </p>
@@ -560,7 +560,7 @@ export default function Tour({ ready }) {
         <span className="tour__progress" aria-hidden="true" />
 
         <p className="sr-only" aria-live="polite">
-          {ui.hero ? 'Extérieur' : ui.title} — scène {idx + 1} sur {SCENES.length}
+          {ui.hero ? 'Extérieur' : ui.title}, scène {idx + 1} sur {SCENES.length}
         </p>
       </section>
     </div>
