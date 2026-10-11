@@ -55,6 +55,8 @@ Deno.serve(async (req) => {
       throw error;
     }
 
+    // from here on, a failure must release the dates held above
+    try {
     const site = env('SITE_URL').replace(/\/$/, '') + '/';
     const stay = `Séjour du ${frDate(checkin)} au ${frDate(checkout)}`;
     const guests = q.adults + q.children;
@@ -91,6 +93,10 @@ Deno.serve(async (req) => {
 
     await client.from('bookings').update({ stripe_session_id: session.id }).eq('id', booking.id);
     return json({ url: session.url });
+    } catch (e) {
+      await client.from('bookings').delete().eq('id', booking.id).eq('status', 'pending');
+      throw e;
+    }
   } catch (e) {
     console.error(e);
     return json({ error: 'La réservation n’a pas pu être créée. Réessayez ou contactez-nous.' }, 500);

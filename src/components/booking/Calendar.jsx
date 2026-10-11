@@ -1,4 +1,4 @@
-import { addDays, diffDays, seasonFor } from '../../../supabase/functions/_shared/quote.js';
+import { addDays, diffDays, nightlyOf, seasonFor } from '../../../supabase/functions/_shared/quote.js';
 import Icon from '../Icon.jsx';
 
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -56,7 +56,7 @@ export default function Calendar({ month, onMonth, ranges, checkin, checkout, on
         aria-pressed={isStart || isEnd}
       >
         <span className="cal__num">{d}</span>
-        {!taken && !outside && <span className="cal__price">{Math.round(season.nightly / 100)}</span>}
+        {!taken && !outside && <span className="cal__price">{Math.round(nightlyOf(season) / 100)}</span>}
       </button>,
     );
   }

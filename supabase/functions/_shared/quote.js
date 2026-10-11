@@ -20,6 +20,9 @@ export function seasonFor(pricing, date) {
   return pricing.defaultSeason;
 }
 
+/** Exact price of one night (seasons are priced per week or per night). */
+export const nightlyOf = (season) => (season.weekly ? season.weekly / 7 : season.nightly);
+
 export const euros = (cents) =>
   (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: cents % 100 ? 2 : 0 });
 
@@ -51,14 +54,20 @@ export function quote(pricing, { checkin, checkout, adults = 1, children = 0 }, 
   for (let i = 0; i < nights; i++) {
     const s = seasonFor(pricing, addDays(checkin, i));
     const g = groups.at(-1);
-    if (g && g.name === s.name && g.nightly === s.nightly) g.count += 1;
-    else groups.push({ name: s.name, nightly: s.nightly, count: 1 });
+    if (g && g.season === s) g.count += 1;
+    else groups.push({ season: s, count: 1 });
   }
-  const lines = groups.map((g) => ({
-    label: `${g.count} nuit${g.count > 1 ? 's' : ''} × ${euros(g.nightly)}`,
-    detail: g.name,
-    amount: g.count * g.nightly,
-  }));
+  const lines = groups.map(({ season: s, count }) => {
+    // whole weeks are charged exactly the weekly price, other stays pro rata
+    const weeks = s.weekly && count % 7 === 0 ? count / 7 : 0;
+    return {
+      label: weeks
+        ? `${weeks} semaine${weeks > 1 ? 's' : ''} × ${euros(s.weekly)}`
+        : `${count} nuit${count > 1 ? 's' : ''} × ${euros(Math.round(nightlyOf(s)))}`,
+      detail: s.name,
+      amount: Math.round(count * nightlyOf(s)),
+    };
+  });
   if (pricing.cleaningFee) lines.push({ label: 'Ménage de fin de séjour', amount: pricing.cleaningFee });
   const tax = pricing.touristTax?.perAdultPerNight || 0;
   if (tax) lines.push({ label: 'Taxe de séjour', detail: `${adults} adulte${adults > 1 ? 's' : ''} × ${nights} nuits`, amount: tax * adults * nights });

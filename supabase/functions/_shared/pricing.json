@@ -1,16 +1,22 @@
 {
-  "_note": "TARIFS PROVISOIRES — à remplacer par les vrais montants avant la mise en ligne. Montants en centimes d'euro (35000 = 350,00 €). Les saisons se répètent chaque année ; from inclus, to exclu (MM-JJ).",
+  "_note": "Tarifs à la SEMAINE en centimes (300000 = 3 000 €) ; un séjour plus court est calculé au prorata (prix semaine ÷ 7 par nuit). Saisons répétées chaque année, from inclus, to exclu (MM-JJ) — la première qui correspond l'emporte, donc les vacances scolaires sont en tête. Dates des vacances à mettre à jour chaque année. Nuits minimum et ménage : provisoires.",
   "currency": "eur",
   "maxGuests": 10,
   "checkInTime": "16:00",
   "checkOutTime": "10:00",
-  "defaultSeason": { "name": "Basse saison", "nightly": 22000, "minNights": 2 },
+  "defaultSeason": { "name": "Automne", "weekly": 150000, "minNights": 2 },
   "seasons": [
-    { "name": "Fêtes de fin d'année", "from": "12-19", "to": "01-04", "nightly": 45000, "minNights": 7 },
-    { "name": "Hiver", "from": "01-04", "to": "04-20", "nightly": 35000, "minNights": 4 },
-    { "name": "Été", "from": "07-01", "to": "09-01", "nightly": 28000, "minNights": 3 }
+    { "name": "Vacances de Noël", "from": "12-18", "to": "01-04", "weekly": 300000, "minNights": 7 },
+    { "name": "Vacances d'hiver", "from": "02-06", "to": "03-08", "weekly": 300000, "minNights": 7 },
+    { "name": "Vacances de printemps", "from": "04-03", "to": "05-03", "weekly": 300000, "minNights": 7 },
+    { "name": "Vacances de la Toussaint", "from": "10-23", "to": "11-08", "weekly": 180000, "minNights": 4 },
+    { "name": "Saison d'hiver", "from": "01-04", "to": "04-03", "weekly": 250000, "minNights": 4 },
+    { "name": "Printemps", "from": "05-03", "to": "07-03", "weekly": 160000, "minNights": 2 },
+    { "name": "Été", "from": "07-03", "to": "09-01", "weekly": 200000, "minNights": 5 },
+    { "name": "Automne", "from": "09-01", "to": "10-23", "weekly": 150000, "minNights": 2 },
+    { "name": "Avant les fêtes", "from": "11-08", "to": "12-18", "weekly": 200000, "minNights": 2 }
   ],
-  "cleaningFee": 15000,
+  "cleaningFee": 0,
   "touristTax": { "perAdultPerNight": 0, "_note": "Taxe de séjour par adulte et par nuit, en centimes — montant à confirmer avec la mairie de Châtel. 0 = ligne masquée." },
   "deposit": { "percent": 30, "balanceDaysBefore": 30 },
   "minLeadDays": 1,

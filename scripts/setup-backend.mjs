@@ -35,15 +35,16 @@ const need = (k) => {
 
 const TOKEN = need('SUPABASE_ACCESS_TOKEN');
 const REF = need('SUPABASE_PROJECT_REF');
-const STRIPE_KEY = need('STRIPE_SECRET_KEY');
+// without a Stripe key everything else is installed; the site keeps linking to Airbnb
+const STRIPE_KEY = env.STRIPE_SECRET_KEY || '';
 const SITE_URL = env.SITE_URL || 'https://kemetedassociation.github.io/residence-les-cerfs/';
 const FN_BASE = `https://${REF}.supabase.co/functions/v1`;
-if (!/^(sk|rk)_(test|live)_/.test(STRIPE_KEY)) {
+if (STRIPE_KEY && !/^(sk|rk)_(test|live)_/.test(STRIPE_KEY)) {
   console.error('✗ STRIPE_SECRET_KEY doit commencer par sk_test_, sk_live_, rk_test_ ou rk_live_');
   process.exit(1);
 }
 const live = STRIPE_KEY.includes('_live_');
-console.log(`Projet Supabase ${REF} · Stripe en mode ${live ? 'RÉEL' : 'test'}\n`);
+console.log(`Projet Supabase ${REF} · Stripe : ${STRIPE_KEY ? (live ? 'mode RÉEL' : 'mode test') : 'pas encore de clé (installation partielle)'}\n`);
 
 const supa = async (p, opts = {}) => {
   const res = await fetch(`https://api.supabase.com${p}`, {
@@ -77,7 +78,8 @@ for (const k of ['ICAL_EXPORT_TOKEN', 'CRON_SECRET']) if (!env[k]) saveEnv(k, cr
 // 3. Stripe webhook (one per mode)
 console.log('2/6 Webhook Stripe…');
 const hookKey = live ? 'STRIPE_WEBHOOK_SECRET_LIVE' : 'STRIPE_WEBHOOK_SECRET_TEST';
-if (!env[hookKey]) {
+if (!STRIPE_KEY) console.log('  — ignoré (pas de clé Stripe)');
+else if (!env[hookKey]) {
   const url = `${FN_BASE}/stripe-webhook`;
   const existing = (await stripe('/webhook_endpoints?limit=100')).data.find((h) => h.url === url);
   if (existing) {
@@ -96,8 +98,7 @@ if (!env[hookKey]) {
 // 4. function secrets
 console.log('3/6 Secrets des fonctions…');
 const secrets = {
-  STRIPE_SECRET_KEY: STRIPE_KEY,
-  STRIPE_WEBHOOK_SECRET: env[hookKey],
+  ...(STRIPE_KEY ? { STRIPE_SECRET_KEY: STRIPE_KEY, STRIPE_WEBHOOK_SECRET: env[hookKey] } : {}),
   SITE_URL,
   ICAL_EXPORT_TOKEN: env.ICAL_EXPORT_TOKEN,
   CRON_SECRET: env.CRON_SECRET,
@@ -138,7 +139,8 @@ await sql(`
 // 7. wire the website
 console.log('6/6 Site…');
 const siteFile = path.join(ROOT, 'src/data/site.js');
-fs.writeFileSync(siteFile, fs.readFileSync(siteFile, 'utf8').replace(/export const BOOKING_API = '.*?';/, `export const BOOKING_API = '${FN_BASE}';`));
+if (STRIPE_KEY) fs.writeFileSync(siteFile, fs.readFileSync(siteFile, 'utf8').replace(/export const BOOKING_API = '.*?';/, `export const BOOKING_API = '${FN_BASE}';`));
+else console.log('  — le bouton « Réserver » reste sur Airbnb tant que Stripe n’est pas branché');
 
 const check = await fetch(`${FN_BASE}/availability`).then((r) => r.json()).catch((e) => ({ error: e.message }));
 console.log(check.ranges ? `  ✓ Disponibilités en ligne (${check.ranges.length} période(s) bloquée(s), synchro Airbnb : ${check.sync})` : `  ✗ ${JSON.stringify(check)}`);
