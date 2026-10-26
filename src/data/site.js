@@ -49,13 +49,12 @@ export const bookingHref = () =>
   BOOKING_URL ||
   `mailto:${SITE.contact.email}?subject=${encodeURIComponent('Demande de réservation, ' + SITE.name)}`;
 
-/** 'live' (server configured), 'demo' (?demo=reservation) or null (link to Airbnb). */
+/** 'demo' (?demo=reservation, even once live), 'live' (server configured) or null (link to Airbnb). */
 export const directBooking = () => {
-  if (BOOKING_API) return 'live';
   try {
     if (new URLSearchParams(location.search).get('demo') === 'reservation') return 'demo';
   } catch {
     /* no location (tests) */
   }
-  return null;
+  return BOOKING_API ? 'live' : null;
 };

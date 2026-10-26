@@ -157,16 +157,24 @@ export default function BookingDrawer() {
       const poll = async () => {
         try {
           const s = await fetchBookingStatus(sid);
-          setStatus(s);
-          if (s.status === 'pending' && tries++ < 8) setTimeout(poll, 2000);
+          if (s.status !== 'pending') return setStatus(s);
+          if (tries++ < 30) setTimeout(poll, 2000);
+          else setStatus({ status: 'unknown' });
         } catch {
-          if (tries++ < 8) setTimeout(poll, 2000);
+          if (tries++ < 30) setTimeout(poll, 2000);
           else setStatus({ status: 'unknown' });
         }
       };
       poll();
     }
   }, [mode, loadAvailability]);
+
+  // back button from Stripe: the browser restores the page as it was left, button stuck on « Redirection… »
+  useEffect(() => {
+    const onShow = (e) => e.persisted && setBusy(false);
+    window.addEventListener('pageshow', onShow);
+    return () => window.removeEventListener('pageshow', onShow);
+  }, []);
 
   const wasOpen = useRef(false);
   useEffect(() => {
@@ -329,7 +337,7 @@ export default function BookingDrawer() {
         )}
 
         {step === 'details' && q?.ok && (
-          <form className="bk__body" onSubmit={submit}>
+          <form id="bk-form" className="bk__body" onSubmit={submit}>
             <div className="bk__recap">
               <p>
                 <strong>
@@ -353,7 +361,7 @@ export default function BookingDrawer() {
               </label>
               <label>
                 <span>Téléphone</span>
-                <input type="tel" required autoComplete="tel" inputMode="tel" pattern="[+0-9 ().-]{8,}" title="Numéro de téléphone" {...field('phone')} />
+                <input type="tel" required autoComplete="tel" inputMode="tel" pattern="[+0-9 \(\)\.\-]{8,}" title="Numéro de téléphone" {...field('phone')} />
               </label>
               <label className="bk__full">
                 <span>Message (facultatif)</span>
@@ -463,12 +471,8 @@ export default function BookingDrawer() {
                 Continuer <Icon name="chevron" size={16} />
               </button>
             ) : (
-              <button
-                type="button"
-                className="btn"
-                disabled={busy || !accept || !form.name || !form.email || !form.phone}
-                onClick={(e) => e.currentTarget.closest('.bk__panel').querySelector('form')?.requestSubmit()}
-              >
+              // the button sits outside the form: form= submits it on every browser (requestSubmit needs iOS 16)
+              <button type="submit" form="bk-form" className="btn" disabled={busy || !accept || !form.name || !form.email || !form.phone}>
                 {busy ? 'Redirection…' : `Payer ${euros(q.payNow)}`} <Icon name="chevron" size={16} />
               </button>
             )}

@@ -27,7 +27,20 @@ export const chargeBalance = (b: any, idempotencyKey: string) =>
 export async function balanceLink(b: any) {
   const site = env('SITE_URL').replace(/\/$/, '') + '/';
   const session = await stripe().checkout.sessions.create({
+    ui_mode: 'hosted',
     mode: 'payment',
+    billing_address_collection: 'auto',
+    phone_number_collection: { enabled: true },
+    automatic_tax: { enabled: false },
+    allow_promotion_codes: false,
+    submit_type: 'auto',
+    name_collection: {
+      individual: { enabled: true, optional: true },
+      business: { enabled: true, optional: true },
+    },
+    saved_payment_method_options: { payment_method_save: 'enabled' },
+    integration_identifier: 'hosted_mobile_app_0001',
+    origin_context: 'mobile_app',
     locale: 'fr',
     payment_method_types: ['card'],
     customer: b.stripe_customer_id ?? undefined,

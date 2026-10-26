@@ -63,7 +63,21 @@ Deno.serve(async (req) => {
     const stay = `Séjour du ${frDate(checkin)} au ${frDate(checkout)}`;
     const guests = q.adults + q.children;
     const session = await stripe().checkout.sessions.create({
+      ui_mode: 'hosted',
       mode: 'payment',
+      billing_address_collection: 'auto',
+      phone_number_collection: { enabled: true },
+      automatic_tax: { enabled: false },
+      allow_promotion_codes: false,
+      submit_type: 'auto',
+      name_collection: {
+        individual: { enabled: true, optional: true },
+        business: { enabled: true, optional: true },
+      },
+      // its "save my card" choice must not let the guest opt out when the balance is charged off-session
+      ...(q.balance ? {} : { saved_payment_method_options: { payment_method_save: 'enabled' as const } }),
+      integration_identifier: 'hosted_mobile_app_0001',
+      origin_context: 'mobile_app',
       locale: 'fr',
       // card only: other methods confirm days later and could not hold the dates, nor pay the balance off-session
       payment_method_types: ['card'],
