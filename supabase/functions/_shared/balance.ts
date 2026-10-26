@@ -40,7 +40,7 @@ export async function balanceLink(b: any) {
     },
     saved_payment_method_options: { payment_method_save: 'enabled' },
     integration_identifier: 'hosted_mobile_app_0001',
-    origin_context: 'mobile_app',
+    origin_context: 'web',
     locale: 'fr',
     payment_method_types: ['card'],
     customer: b.stripe_customer_id ?? undefined,

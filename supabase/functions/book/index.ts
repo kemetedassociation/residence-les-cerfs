@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       // its "save my card" choice must not let the guest opt out when the balance is charged off-session
       ...(q.balance ? {} : { saved_payment_method_options: { payment_method_save: 'enabled' as const } }),
       integration_identifier: 'hosted_mobile_app_0001',
-      origin_context: 'mobile_app',
+      origin_context: 'web',
       locale: 'fr',
       // card only: other methods confirm days later and could not hold the dates, nor pay the balance off-session
       payment_method_types: ['card'],

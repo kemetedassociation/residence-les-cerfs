@@ -35,7 +35,7 @@ Ces paramètres ont été configurés dans Checkout Studio et sont en place dans
 | name_collection | `individual` et `business` : `{ enabled: true, optional: true }` |
 | saved_payment_method_options | `{ payment_method_save: "enabled" }` (voir exception ci-dessous) |
 | integration_identifier | `hosted_mobile_app_0001` |
-| origin_context | `mobile_app` |
+| origin_context | `web` (Studio proposait `mobile_app` ; passé à `web` le 26/10/2026, les voyageurs paient depuis le site) |
 
 **Exception volontaire (réservation avec acompte)** : dans `book/index.ts`, `saved_payment_method_options` n'est envoyé que pour un paiement complet. Quand il reste un solde, la session utilise déjà `payment_intent_data.setup_future_usage: 'off_session'` pour garder la carte et prélever le solde automatiquement. Stripe accepte les deux paramètres ensemble (vérifié le 25/10/2026), mais avec `payment_method_save` le voyageur pourrait décocher l'enregistrement de sa carte, ce qui ferait échouer le prélèvement du solde.
 
@@ -47,7 +47,7 @@ Ces paramètres ont été configurés dans Checkout Studio et sont en place dans
 
 1. **Version de l'API** : le client Stripe est figé sur `apiVersion: '2025-02-24.acacia'` dans [supabase/functions/_shared/common.ts](supabase/functions/_shared/common.ts). **Vérifié le 25/10/2026** : avec cette version et la clé réelle, Stripe accepte tous les paramètres Studio (sessions de contrôle à 1 €, expirées aussitôt, aucun débit).
 2. **Types TypeScript** : les types du SDK 17 ne connaissent pas ces paramètres. Si une vérification de types est lancée (`deno check`), elle signalera ces champs. Supabase ne vérifie pas les types au déploiement par défaut, mais à garder en tête.
-3. **`origin_context: "mobile_app"`** : le site de réservation est un site web. Si les voyageurs réservent depuis un navigateur, il vaudrait mieux choisir `web` dans Checkout Studio.
+3. **`origin_context`** : réglé sur `web`, puisque les voyageurs réservent depuis un navigateur.
 4. **`payment_method_save` sur le lien de solde** : il s'appuie sur le client Stripe enregistré à la réservation (`stripe_customer_id`). Pour un ancien dossier sans client Stripe, vérifier que la session se crée bien.
 5. **Champs en double** : le formulaire du site demande déjà le nom et le téléphone. Avec `phone_number_collection` et `name_collection`, Stripe les redemandera sur sa page de paiement.
 
