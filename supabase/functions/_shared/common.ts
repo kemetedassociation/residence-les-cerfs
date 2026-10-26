@@ -32,26 +32,39 @@ export const json = (body: unknown, status = 200, extra: Record<string, string> 
 
 type Db = ReturnType<typeof db>;
 
-/** Pull the Airbnb iCal feed into external_blocks if the last sync is older than `maxAgeMin`. */
-export async function syncAirbnb(client: Db, maxAgeMin = 10) {
-  const url = env('AIRBNB_ICAL_URL', false);
-  if (!url) return { skipped: 'no AIRBNB_ICAL_URL' };
-  const { data: st } = await client.from('sync_state').select('last_sync').eq('source', 'airbnb').maybeSingle();
+/** Other platforms whose iCal feed blocks dates here; a platform without its secret is skipped. */
+const FEEDS = [
+  { source: 'airbnb', secret: 'AIRBNB_ICAL_URL', label: 'Airbnb' },
+  { source: 'booking', secret: 'BOOKING_ICAL_URL', label: 'Booking.com' },
+];
+
+/** Pull one platform's iCal feed into external_blocks if its last sync is older than `maxAgeMin`. */
+async function syncFeed(client: Db, { source, secret, label }: (typeof FEEDS)[number], maxAgeMin: number) {
+  const url = env(secret, false);
+  if (!url) return { skipped: `no ${secret}` };
+  const { data: st } = await client.from('sync_state').select('last_sync').eq('source', source).maybeSingle();
   if (st?.last_sync && Date.now() - new Date(st.last_sync).getTime() < maxAgeMin * 60000) return { fresh: true };
   try {
     const res = await fetch(url, { headers: { 'user-agent': 'ResidenceLesCerfs/1.0' } });
-    if (!res.ok) throw new Error(`Airbnb iCal HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`${label} iCal HTTP ${res.status}`);
     const text = await res.text();
-    if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Airbnb iCal: unexpected content');
+    if (!text.includes('BEGIN:VCALENDAR')) throw new Error(`${label} iCal: unexpected content`);
     const rows = parseIcal(text).filter((e) => e.end >= todayIso());
-    const { error } = await client.rpc('replace_external_blocks', { p_source: 'airbnb', p_rows: rows });
+    const { error } = await client.rpc('replace_external_blocks', { p_source: source, p_rows: rows });
     if (error) throw error;
     return { synced: rows.length };
   } catch (e) {
     // keep the previous blocks: a failed sync must never open dates
-    await client.from('sync_state').upsert({ source: 'airbnb', last_error: errMsg(e) });
+    await client.from('sync_state').upsert({ source, last_error: errMsg(e) });
     return { error: errMsg(e) };
   }
+}
+
+/** Refresh every configured platform (Airbnb, Booking.com); `error` set if any of them failed. */
+export async function syncCalendars(client: Db, maxAgeMin = 10) {
+  const results = await Promise.all(FEEDS.map((f) => syncFeed(client, f, maxAgeMin)));
+  const failed = results.find((r) => 'error' in r);
+  return failed ? { error: (failed as { error: string }).error } : { ok: true };
 }
 
 /** Every unavailable [start, end) range from today on: live site bookings + other platforms. */

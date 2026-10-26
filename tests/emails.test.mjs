@@ -23,7 +23,7 @@ for (const kind of Object.keys(TEMPLATES)) {
   if (out) writeFileSync(`${out}/${kind}.html`, m.html);
 }
 assert.match(buildEmail('confirmation', b, stay).text, /Dossier : CERF-/);
-assert.match(buildEmail('confirmation', b, stay).text.replace(/\s/g, ' '), /Solde : 2 100 €, prélevé automatiquement le jeudi 7 janvier 2027/);
+assert.match(buildEmail('confirmation', b, stay).text.replace(/\s/g, ' '), /Taxe de séjour \(6 adultes × 7 nuits × 2,68 €\) : 112,56 € Total du séjour : 3 112,56 € Acompte réglé ce jour : 933,77 € Solde : 2 178,79 €, prélevé automatiquement le jeudi 7 janvier 2027/);
 
 // schedule: a week from 6 to 13 Feb
 const S = (today, sent = []) => scheduledFor(b, today, new Set(sent));

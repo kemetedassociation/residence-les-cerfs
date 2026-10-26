@@ -2,7 +2,7 @@
 // → holds the dates for 30 min and returns a Stripe Checkout URL for the deposit (or full amount).
 import { quote, overlaps } from '../_shared/quote.js';
 import { makeRef } from '../_shared/emails.js';
-import { cors, db, env, expireHolds, frDate, json, pricing, stripe, syncAirbnb, unavailableRanges } from '../_shared/common.ts';
+import { cors, db, env, expireHolds, frDate, json, pricing, stripe, syncCalendars, unavailableRanges } from '../_shared/common.ts';
 
 const HOLD_MIN = 30;
 const emailOk = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       if ((count ?? 0) >= 3) return json({ error: 'Trop de tentatives. Réessayez dans une heure ou contactez-nous.' }, 429);
     }
 
-    await syncAirbnb(client, 5);
+    await syncCalendars(client, 5);
     const taken = (await unavailableRanges(client)).some((r) => overlaps(checkin, checkout, r.start, r.end));
     if (taken) return json({ error: 'Ces dates viennent d’être réservées. Choisissez d’autres dates.', code: 'unavailable' }, 409);
 

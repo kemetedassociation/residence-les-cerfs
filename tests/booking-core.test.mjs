@@ -8,7 +8,8 @@ const T = '2026-10-11';
 const S = (d) => seasonFor(pricing, d).name;
 
 // school holidays win over the broad seasons
-assert.equal(S('2026-12-18'), 'Vacances de Noël');
+assert.equal(S('2026-12-18'), 'Avant les fêtes');
+assert.equal(S('2026-12-19'), 'Vacances de Noël');
 assert.equal(S('2027-01-03'), 'Vacances de Noël'); // 3 janvier inclus
 assert.equal(S('2027-01-04'), "Saison d'hiver");
 assert.equal(S('2027-02-06'), "Vacances d'hiver");
@@ -19,33 +20,48 @@ assert.equal(S('2027-05-02'), 'Vacances de printemps');
 assert.equal(S('2027-05-03'), 'Printemps');
 assert.equal(S('2027-07-03'), 'Été');
 assert.equal(S('2027-09-15'), 'Automne');
-assert.equal(S('2026-10-25'), 'Vacances de la Toussaint');
+assert.equal(S('2026-10-16'), 'Automne');
+assert.equal(S('2026-10-17'), 'Vacances de la Toussaint');
+assert.equal(S('2026-11-01'), 'Vacances de la Toussaint');
+assert.equal(S('2026-11-02'), 'Avant les fêtes');
 assert.equal(S('2026-11-20'), 'Avant les fêtes');
 
 // a whole week costs exactly the weekly price
 let q = quote(pricing, { checkin: '2027-02-06', checkout: '2027-02-13', adults: 6, children: 2 }, T);
 assert.ok(q.ok, q.error);
-assert.equal(q.total, 300000);
+// tourist tax: 3 000 € / 7 nights / 8 occupants × 5 % = 2,68 €, paid by the 6 adults only
+assert.equal(q.lines[0].amount, 300000);
 assert.equal(q.lines[0].label.replace(/\s/g, ' '), '1 semaine × 3 000 €');
-assert.equal(q.deposit, 90000);
-assert.equal(q.balance, 210000);
+assert.equal(q.lines[1].label, 'Taxe de séjour');
+assert.equal(q.lines[1].amount, 268 * 6 * 7);
+assert.equal(q.total, 300000 + 268 * 6 * 7);
+assert.equal(q.deposit, Math.round(q.total * 0.3));
+assert.equal(q.balance, q.total - q.deposit);
 assert.equal(q.balanceDue, '2027-01-07');
 q = quote(pricing, { checkin: '2027-07-03', checkout: '2027-07-17', adults: 4 }, T);
-assert.equal(q.total, 400000);
+assert.equal(q.lines[0].amount, 400000);
+// 2 000 € / 7 / 4 × 5 % = 3,57 €
+assert.equal(q.lines[1].amount, 357 * 4 * 14);
+// tax capped at 4,90 € per adult and per night
+q = quote(pricing, { checkin: '2027-02-06', checkout: '2027-02-13', adults: 1 }, T);
+assert.equal(q.lines[1].amount, 490 * 7);
+// minors exempt but counted as occupants
+q = quote(pricing, { checkin: '2027-05-10', checkout: '2027-05-13', adults: 2, children: 2 }, T);
+assert.equal(q.lines[1].amount, Math.round((160000 / 7 / 4) * 0.05) * 2 * 3);
 
 // shorter stay pro rata; stay spanning two seasons is split
 q = quote(pricing, { checkin: '2027-05-10', checkout: '2027-05-13', adults: 2 }, T);
 assert.ok(q.ok, q.error);
-assert.equal(q.total, Math.round((3 * 160000) / 7));
+assert.equal(q.lines[0].amount, Math.round((3 * 160000) / 7));
 q = quote(pricing, { checkin: '2027-03-04', checkout: '2027-03-12', adults: 2 }, T); // 4 n. vacances + 4 n. saison
 assert.ok(q.ok, q.error);
-assert.equal(q.lines.length, 2);
-assert.equal(q.total, Math.round((4 * 300000) / 7) + Math.round((4 * 250000) / 7));
+assert.equal(q.lines.length, 3);
+assert.equal(q.lines[0].amount + q.lines[1].amount, Math.round((4 * 300000) / 7) + Math.round((4 * 250000) / 7));
 
 // arrival within 30 days → pay in full
 q = quote(pricing, { checkin: '2026-10-23', checkout: '2026-10-30', adults: 2 }, T);
 assert.ok(q.ok, q.error);
-assert.equal(q.total, 180000);
+assert.equal(q.lines[0].amount, 180000);
 assert.equal(q.balance, 0);
 
 // rules

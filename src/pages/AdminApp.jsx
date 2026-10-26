@@ -24,6 +24,8 @@ const store = {
 const fr = (d, year = true) =>
   new Date(d + 'T00:00:00Z').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' });
 const frTime = (t) => (t ? new Date(t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais');
+// platforms synced by iCal (external_blocks.source / sync_state.source)
+const PLATFORMS = { airbnb: 'Airbnb', booking: 'Booking.com' };
 const paidOf = (b) => (b.deposit_paid_at ? b.deposit_cents : 0) + (b.balance_status === 'paid' ? b.balance_cents : 0);
 
 async function api(token, action, payload = {}) {
@@ -227,7 +229,7 @@ function Blocks({ data, token, onChange, flash }) {
   return (
     <section className="ad-section">
       <h2>Dates bloquées</h2>
-      <p className="ad-help">Bloquez des dates pour vous ou pour travaux : elles deviennent indisponibles sur le site et sont transmises à Airbnb. Les réservations et blocages Airbnb apparaissent ici automatiquement.</p>
+      <p className="ad-help">Bloquez des dates pour vous ou pour travaux : elles deviennent indisponibles sur le site et sont transmises à Airbnb et Booking.com. Les réservations et blocages de ces plateformes apparaissent ici automatiquement.</p>
       <form
         className="ad-row ad-block-form"
         onSubmit={async (e) => {
@@ -264,7 +266,7 @@ function Blocks({ data, token, onChange, flash }) {
             <span>
               {fr(x.start_date)} → {fr(x.end_date)}
             </span>
-            <span className="ad-src">{x.source === 'airbnb' ? `Airbnb, ${x.summary === 'Reserved' ? 'réservé' : 'bloqué'}` : `Vous${x.note ? `, ${x.note}` : ''}`}</span>
+            <span className="ad-src">{x.source === 'manual' ? `Vous${x.note ? `, ${x.note}` : ''}` : `${PLATFORMS[x.source] ?? x.source}, ${/reserved|booked/i.test(x.summary ?? '') ? 'réservé' : 'bloqué'}`}</span>
             {x.source === 'manual' && (
               <button className="link-btn ad-danger" onClick={async () => {
                 await api(token, 'unblock', { id: x.id });
@@ -336,7 +338,7 @@ export default function AdminApp() {
   const toCome = groups.upcoming.reduce((s, x) => s + (x.balance_status === 'scheduled' || x.balance_status === 'failed' ? x.balance_cents : 0), 0);
   const failed = groups.upcoming.filter((x) => x.balance_status === 'failed');
   const next = groups.upcoming[0];
-  const airbnb = data?.sync?.find((s) => s.source === 'airbnb');
+  const syncs = (data?.sync ?? []).filter((s) => PLATFORMS[s.source]);
   const tabs = [
     ['upcoming', 'À venir', groups.upcoming],
     ['pending', 'Paiements en cours', groups.pending],
@@ -396,7 +398,11 @@ export default function AdminApp() {
               {failed.length} solde{failed.length > 1 ? 's' : ''} refusé{failed.length > 1 ? 's' : ''} par la banque : relancez le prélèvement ou envoyez un lien de paiement au voyageur.
             </p>
           )}
-          {airbnb?.last_error && <p className="ad-alert">Synchronisation Airbnb en erreur : {airbnb.last_error}</p>}
+          {syncs.filter((s) => s.last_error).map((s) => (
+            <p key={s.source} className="ad-alert">
+              Synchronisation {PLATFORMS[s.source]} en erreur : {s.last_error}
+            </p>
+          ))}
 
           <nav className="ad-tabs" aria-label="Réservations">
             {tabs.map(([id, label, list]) => (
@@ -416,10 +422,15 @@ export default function AdminApp() {
 
           <section className="ad-section">
             <h2>Synchronisation</h2>
+            {syncs.map((s) => (
+              <p key={s.source} className="ad-help">
+                {PLATFORMS[s.source]} → site : dernière lecture {frTime(s.last_sync)} ({s.event_count ?? 0} période(s)).
+              </p>
+            ))}
+            <p className="ad-help">Le site relit chaque plateforme au plus toutes les 10 minutes et avant chaque paiement.</p>
             <p className="ad-help">
-              Airbnb → site : dernière lecture {frTime(airbnb?.last_sync)} ({airbnb?.event_count ?? 0} période(s)). Le site relit Airbnb au plus toutes les 10 minutes et avant chaque paiement.
+              Site → plateformes : lien à importer dans Airbnb (Disponibilités → Synchroniser les calendriers → Importer) et dans Booking.com (Tarifs et disponibilités → Synchroniser les calendriers) :
             </p>
-            <p className="ad-help">Site → Airbnb : lien à importer dans le calendrier Airbnb (Disponibilités → Synchroniser les calendriers → Importer) :</p>
             <input readOnly value={data.icalExport} onFocus={(e) => e.target.select()} className="ad-mono" />
           </section>
         </main>

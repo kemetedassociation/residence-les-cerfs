@@ -1,4 +1,4 @@
-// GET ?token=… → iCal feed of the site's confirmed bookings, to import into Airbnb.
+// GET ?token=… → iCal feed of the site's confirmed bookings, to import into Airbnb and Booking.com.
 import { buildIcal } from '../_shared/ical.js';
 import { cors, db, env, todayIso } from '../_shared/common.ts';
 

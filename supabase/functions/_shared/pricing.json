@@ -1,5 +1,5 @@
 {
-  "_note": "Tarifs à la SEMAINE en centimes (300000 = 3 000 €) ; un séjour plus court est calculé au prorata (prix semaine ÷ 7 par nuit). Saisons répétées chaque année, from inclus, to exclu (MM-JJ) — la première qui correspond l'emporte, donc les vacances scolaires sont en tête. Dates des vacances à mettre à jour chaque année. Nuits minimum et ménage : provisoires.",
+  "_note": "Tarifs à la SEMAINE en centimes (300000 = 3 000 €) ; un séjour plus court est calculé au prorata (prix semaine ÷ 7 par nuit). Saisons répétées chaque année, from inclus, to exclu (MM-JJ) — la première qui correspond l'emporte, donc les vacances scolaires sont en tête. Dates des vacances à mettre à jour chaque année (2026-2027 : Toussaint 17/10 → 2/11, Noël 19/12 → 4/01, hiver et printemps = union des zones A, B et C). Ménage inclus dans le prix (voir conditions).",
   "currency": "eur",
   "maxGuests": 10,
   "checkInTime": "16:00",
@@ -12,7 +12,7 @@
   "seasons": [
     {
       "name": "Vacances de Noël",
-      "from": "12-18",
+      "from": "12-19",
       "to": "01-04",
       "weekly": 300000,
       "minNights": 7
@@ -33,8 +33,8 @@
     },
     {
       "name": "Vacances de la Toussaint",
-      "from": "10-23",
-      "to": "11-08",
+      "from": "10-17",
+      "to": "11-02",
       "weekly": 180000,
       "minNights": 4
     },
@@ -62,22 +62,23 @@
     {
       "name": "Automne",
       "from": "09-01",
-      "to": "10-23",
+      "to": "10-17",
       "weekly": 150000,
       "minNights": 2
     },
     {
       "name": "Avant les fêtes",
-      "from": "11-08",
-      "to": "12-18",
+      "from": "11-02",
+      "to": "12-19",
       "weekly": 200000,
       "minNights": 2
     }
   ],
   "cleaningFee": 0,
   "touristTax": {
-    "perAdultPerNight": 0,
-    "_note": "Taxe de séjour par adulte et par nuit, en centimes — montant à confirmer avec la mairie de Châtel. 0 = ligne masquée."
+    "percent": 5,
+    "capPerNight": 490,
+    "_note": "Châtel, meublé non classé (délibération du 20-05-2025, en vigueur au 01-01-2026) : 5 % du prix HT de la nuitée par occupant, plafonné à 4,90 € par adulte et par nuit ; mineurs exonérés. Si le meublé est classé, remplacer percent et capPerNight par perAdultPerNight (centimes, ex. 1 étoile 80, 2 étoiles 100, 3 étoiles 170, 4 étoiles 260, 5 étoiles 360)."
   },
   "deposit": {
     "percent": 30,

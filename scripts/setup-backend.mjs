@@ -119,6 +119,8 @@ const secrets = {
   MAIL_RELAY_SECRET: env.MAIL_RELAY_SECRET,
   ...(env.MAIL_RELAY_URL ? { MAIL_RELAY_URL: env.MAIL_RELAY_URL } : {}),
   ...(env.AIRBNB_ICAL_URL ? { AIRBNB_ICAL_URL: env.AIRBNB_ICAL_URL } : {}),
+  // Booking.com: calendar export link, once the listing is active
+  ...(env.BOOKING_ICAL_URL ? { BOOKING_ICAL_URL: env.BOOKING_ICAL_URL } : {}),
 };
 await supa(`/v1/projects/${REF}/secrets`, {
   method: 'POST',
@@ -172,7 +174,8 @@ console.log(check.ranges ? `  ✓ Disponibilités en ligne (${check.ranges.lengt
 if (!env.MAIL_RELAY_URL) console.log('\n⚠ E-mails aux voyageurs pas encore actifs : installer mail-relay/Code.a-coller.gs (voir RESERVATION.md) puis ajouter MAIL_RELAY_URL dans .env et relancer.');
 console.log(`
 Terminé.
-• À coller dans Airbnb (Calendrier → Disponibilités → Synchroniser les calendriers → Importer) :
+• À coller dans Airbnb (Calendrier → Disponibilités → Synchroniser les calendriers → Importer)
+  et dans Booking.com (Tarifs et disponibilités → Synchroniser les calendriers) :
   ${FN_BASE}/ical?token=${env.ICAL_EXPORT_TOKEN}
 • Puis publier le site : npm run deploy
 `);

@@ -68,9 +68,15 @@ export function quote(pricing, { checkin, checkout, adults = 1, children = 0 }, 
       amount: Math.round(count * nightlyOf(s)),
     };
   });
+  const lodging = lines.reduce((s, l) => s + l.amount, 0);
   if (pricing.cleaningFee) lines.push({ label: 'Ménage de fin de séjour', amount: pricing.cleaningFee });
-  const tax = pricing.touristTax?.perAdultPerNight || 0;
-  if (tax) lines.push({ label: 'Taxe de séjour', detail: `${adults} adulte${adults > 1 ? 's' : ''} × ${nights} nuits`, amount: tax * adults * nights });
+  // tourist tax, paid by adults only: a fixed rate (classified rental) or, unclassified, a share of the
+  // nightly price per occupant, children included, capped (Châtel: 5 %, 4,90 €)
+  const tt = pricing.touristTax ?? {};
+  const tax = tt.percent
+    ? Math.min(Math.round((lodging / nights / (adults + children)) * (tt.percent / 100)), tt.capPerNight ?? Infinity)
+    : tt.perAdultPerNight || 0;
+  if (tax) lines.push({ label: 'Taxe de séjour', detail: `${adults} adulte${adults > 1 ? 's' : ''} × ${nights} nuits × ${euros(tax)}`, amount: tax * adults * nights });
 
   const total = lines.reduce((s, l) => s + l.amount, 0);
   const daysBefore = pricing.deposit.balanceDaysBefore;

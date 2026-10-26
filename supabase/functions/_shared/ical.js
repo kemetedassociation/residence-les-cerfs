@@ -1,4 +1,4 @@
-// Minimal iCalendar (RFC 5545) reading/writing for availability sync with Airbnb.
+// Minimal iCalendar (RFC 5545) reading/writing for availability sync with Airbnb and Booking.com.
 // Events are whole days: { uid, start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' (excluded), summary }.
 
 const dateOf = (v) => {
