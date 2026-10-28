@@ -68,7 +68,7 @@ export const LEGAL_PAGES = {
       {
         h: '4. Prix',
         p: [
-          'Les prix sont indiqués en euros, toutes taxes comprises. Ils comprennent la location du logement meublé et le ménage de fin de séjour.',
+          'Les prix sont indiqués en euros, toutes taxes comprises. Ils comprennent la location du logement meublé.',
           'La taxe de séjour, due par les personnes majeures selon le tarif fixé par la commune de Châtel, n’est pas comprise dans le prix lorsqu’elle n’apparaît pas dans le détail de la réservation ; elle est alors réglée séparément avant l’arrivée.',
           'Le prix applicable est celui affiché au moment de la réservation.',
         ],

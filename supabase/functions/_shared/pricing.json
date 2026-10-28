@@ -1,5 +1,5 @@
 {
-  "_note": "Tarifs à la SEMAINE en centimes (300000 = 3 000 €) ; un séjour plus court est calculé au prorata (prix semaine ÷ 7 par nuit). Saisons répétées chaque année, from inclus, to exclu (MM-JJ) — la première qui correspond l'emporte, donc les vacances scolaires sont en tête. Dates des vacances à mettre à jour chaque année (2026-2027 : Toussaint 17/10 → 2/11, Noël 19/12 → 4/01, hiver et printemps = union des zones A, B et C). Ménage inclus dans le prix (voir conditions).",
+  "_note": "Tarifs à la SEMAINE en centimes (300000 = 3 000 €) ; un séjour plus court est calculé au prorata (prix semaine ÷ 7 par nuit). Saisons répétées chaque année, from inclus, to exclu (MM-JJ) — la première qui correspond l'emporte, donc les vacances scolaires sont en tête. Dates des vacances à mettre à jour chaque année (2026-2027 : Toussaint 17/10 → 2/11, Noël 19/12 → 4/01, hiver et printemps = union des zones A, B et C).",
   "currency": "eur",
   "maxGuests": 10,
   "checkInTime": "16:00",
