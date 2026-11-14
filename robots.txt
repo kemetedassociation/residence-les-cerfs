@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /residence-les-cerfs/admin/
+
+Sitemap: https://kemetedassociation.github.io/residence-les-cerfs/sitemap.xml
