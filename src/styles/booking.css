@@ -45,13 +45,6 @@
   background: var(--white);
   color: var(--black);
 }
-.bk__demo {
-  margin: 0 28px 12px;
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--black);
-  background: var(--beige);
-}
 .bk__steps {
   display: flex;
   gap: 18px;
@@ -472,8 +465,7 @@
     padding-left: 18px;
     padding-right: 18px;
   }
-  .bk__steps,
-  .bk__demo {
+  .bk__steps {
     margin-left: 18px;
     margin-right: 18px;
   }

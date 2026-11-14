@@ -8,7 +8,6 @@ export const BOOKING_URL = 'https://www.airbnb.fr/rooms/1647312292450231655';
 
 // Réservation directe (calendrier + paiement Stripe) : adresse des fonctions Supabase,
 // ex. 'https://abcdefgh.supabase.co/functions/v1'. Vide = réservation directe désactivée.
-// Aperçu sans serveur : ajouter ?demo=reservation à l'adresse du site.
 export const BOOKING_API = 'https://xstcfnrgvjbkzpjkocmd.supabase.co/functions/v1';
 
 export const SITE = {
@@ -49,12 +48,5 @@ export const bookingHref = () =>
   BOOKING_URL ||
   `mailto:${SITE.contact.email}?subject=${encodeURIComponent('Demande de réservation, ' + SITE.name)}`;
 
-/** 'demo' (?demo=reservation, even once live), 'live' (server configured) or null (link to Airbnb). */
-export const directBooking = () => {
-  try {
-    if (new URLSearchParams(location.search).get('demo') === 'reservation') return 'demo';
-  } catch {
-    /* no location (tests) */
-  }
-  return BOOKING_API ? 'live' : null;
-};
+/** 'live' (server configured) or null (link to Airbnb). */
+export const directBooking = () => (BOOKING_API ? 'live' : null);

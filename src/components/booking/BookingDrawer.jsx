@@ -78,7 +78,7 @@ export default function BookingDrawer() {
   const today = todayIso();
   const ref = useRef(null);
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState('dates'); // dates | details | demo | returned
+  const [step, setStep] = useState('dates'); // dates | details | returned
   const [ranges, setRanges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [checkin, setCheckin] = useState(null);
@@ -103,7 +103,7 @@ export default function BookingDrawer() {
   const loadAvailability = useCallback(async () => {
     setLoading(true);
     try {
-      const { ranges } = await fetchAvailability(mode);
+      const { ranges } = await fetchAvailability();
       setRanges(ranges);
       return ranges;
     } catch (e) {
@@ -135,7 +135,7 @@ export default function BookingDrawer() {
       loadAvailability();
     }
     if (!r || !mode) return;
-    const clean = () => history.replaceState(null, '', location.pathname + (mode === 'demo' ? '?demo=reservation' : '') + location.hash);
+    const clean = () => history.replaceState(null, '', location.pathname + location.hash);
     if (r === 'solde') {
       setNotice({ type: 'info', text: 'Merci, le solde de votre séjour est réglé. Un reçu vous a été envoyé par e-mail.' });
       setOpen(true);
@@ -231,9 +231,8 @@ export default function BookingDrawer() {
     setBusy(true);
     setNotice(null);
     try {
-      const res = await createBooking(mode, { checkin, checkout, adults, children, ...form, acceptTerms: accept });
-      if (res.demo) setStep('demo');
-      else window.location.href = res.url;
+      const res = await createBooking({ checkin, checkout, adults, children, ...form, acceptTerms: accept });
+      window.location.href = res.url;
     } catch (err) {
       setNotice({ type: 'error', text: err.message });
       if (err.code === 'unavailable') {
@@ -270,8 +269,6 @@ export default function BookingDrawer() {
             <Icon name="close" size={16} />
           </button>
         </header>
-
-        {mode === 'demo' && <p className="bk__demo">Aperçu en mode démonstration : aucun paiement n’est effectué.</p>}
 
         {(step === 'dates' || step === 'details') && (
           <ol className="bk__steps" aria-label="Étapes">
@@ -392,20 +389,6 @@ export default function BookingDrawer() {
               Paiement sécurisé par Stripe. Vous serez redirigé vers la page de paiement, puis de retour ici.
             </p>
           </form>
-        )}
-
-        {step === 'demo' && (
-          <div className="bk__body bk__result">
-            <p className="kicker">Mode démonstration</p>
-            <h3>Ici, le voyageur serait redirigé vers Stripe</h3>
-            <p>
-              Il paierait {q?.balance ? `l’acompte de ${euros(q.deposit)}` : euros(q?.total ?? 0)}, puis reviendrait sur cette page avec la
-              confirmation. Les dates seraient aussitôt bloquées sur le site et transmises à Airbnb.
-            </p>
-            <button type="button" className="btn" onClick={() => setStep('dates')}>
-              Revenir au calendrier
-            </button>
-          </div>
         )}
 
         {step === 'returned' && (

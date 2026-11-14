@@ -1,5 +1,4 @@
 import { BOOKING_API } from '../data/site.js';
-import { addDays, todayIso } from '../../supabase/functions/_shared/quote.js';
 
 const call = async (path, opts) => {
   const res = await fetch(`${BOOKING_API.replace(/\/$/, '')}/${path}`, opts);
@@ -8,26 +7,11 @@ const call = async (path, opts) => {
   return data;
 };
 
-// demo mode: a few fake bookings so the calendar looks real
-const demoRanges = () => {
-  const t = todayIso();
-  return [
-    { start: addDays(t, 6), end: addDays(t, 11) },
-    { start: addDays(t, 24), end: addDays(t, 31) },
-    { start: addDays(t, 52), end: addDays(t, 56) },
-  ];
-};
-
-export async function fetchAvailability(mode) {
-  if (mode === 'demo') return { ranges: demoRanges() };
+export async function fetchAvailability() {
   return call('availability');
 }
 
-export async function createBooking(mode, payload) {
-  if (mode === 'demo') {
-    await new Promise((r) => setTimeout(r, 700));
-    return { demo: true };
-  }
+export async function createBooking(payload) {
   return call('book', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
 }
 

@@ -3,7 +3,6 @@
 Le site sait déjà tout faire : calendrier synchronisé avec Airbnb, calcul du prix, acompte de 30 % par Stripe, prélèvement automatique du solde 30 jours avant l'arrivée, export des réservations vers Airbnb.
 Il manque seulement les comptes de la Résidence Les Cerfs. Tant qu'ils ne sont pas branchés, le bouton « Réserver » mène à l'annonce Airbnb, comme avant.
 
-Aperçu sans paiement : ajouter `?demo=reservation` à l'adresse du site.
 
 ---
 
